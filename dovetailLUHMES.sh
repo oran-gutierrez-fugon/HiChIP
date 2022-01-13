@@ -1,8 +1,8 @@
 #first copied hichip and pairix folders
 #then all hg38 titled files to new directory "merged" and 'neuronscat"
 #must run each sample group in separate folders though since aligned.sam file would be overwritten
-#adding email commands informs you when job is done
-#using concatenated samples
+#adding email commands informs you when job is done (please change to your own email :P)
+#using concatenated samples although processing fastq samples separately and then using bedtools intersectBed would be better
 
 #sample nomenclature used
 neurons_R2.fastq.gz  undif_R1.fastq.gz
@@ -18,7 +18,8 @@ pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --
 
 #3 Sorting the pairsam file. 
 #Must create temp/ directory or this step will error out! 
-#Don't try running both neurons and dif at the same time or will error out also.
+#Don't try running both neurons and dif at the same time or will error out.
+#Don't run on screen, will also cause memory issues on UCDavis Cluster
 #FOR NEURONS
 pairtools sort --nproc 40 --tmpdir=/share/lasallelab/Oran/dovetail/luhmes/neuronscat/temp/ parsed.pairsam > sorted.pairsam; echo "#3 NEURON sorting pairsam done" | mail -s "#3 sorting pairsam done" ojg333@gmail.com
 
@@ -42,14 +43,20 @@ samtools index mapped.PT.bam; echo "#7 samtools index bam file" | mail -s "#7 sa
 #Only needed since no gold standard ENCODE ChIP-seq data for LUHMES cells
 
 #7.5 Select the primary alignment in the bam file and convert to bed format
-#corrected -view removed dash and input file namento mapped.PT.bam
+#corrected -view removed dash and input file namen to mapped.PT.bam
 samtools view -h -F 0x900 mapped.PT.bam | bedtools bamtobed -i stdin > prefix.primary.aln.bed
 
-#7.6 Call peaks using MACS3 (MACS2 was not able to run on UCDavis cluster)
+#7.6 Call peaks using MACS3 (changed from using MACS2 since was not able to run on UCDavis cluster)
 macs3 callpeak –t prefix.primary.aln.bed -n prefix.macs3; echo "#7.6 Macs3" | mail -s "#7.6 Macs3" ojg333@gmail.com
 
 #8 Library QC
 python3 ./HiChiP/get_qc.py -p stats.txt
 
 #9 ChIP Enrichment Stats
-./HiChiP/enrichment_stats.sh -g hg38.genome -b mapped.PT.bam -p /share/lasallelab/Oran/dovetail/ENCFF017XLW.bed -t 50 -x CTCF; echo "#9 ChIP Enrichment Stats" | mail -s "#9 ChIP Enrichment Stats" ojg333@gmail.com
+#Using narrowpeak bedfile format resulting from 1D peak call in 7.6
+./HiChiP/enrichment_stats.sh -g hg38.genome -b mapped.PT.bam -p /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs3_peaks.narrowPeak -t 50 -x CTCF; echo "#9 ChIP Enrichment Stats" | mail -s "#9 ChIP Enrichment Stats" ojg333@gmail.com
+
+#10 Plot ChIP enrichment
+module load hichip
+source activate hichip-cb6872b
+plot_chip_enrichment.py -bam mapped.PT.bam -peaks /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs3_peaks.narrowPeak -output enrichment.png; echo "#9 ChIP Enrichment Stats" | mail -s "#9 ChIP Enrichment Stats" ojg333@gmail.com
