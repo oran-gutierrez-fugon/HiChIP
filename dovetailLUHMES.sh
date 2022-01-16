@@ -46,17 +46,22 @@ samtools index mapped.PT.bam; echo "#7 samtools index bam file" | mail -s "#7 sa
 #corrected -view removed dash and input file namen to mapped.PT.bam
 samtools view -h -F 0x900 mapped.PT.bam | bedtools bamtobed -i stdin > prefix.primary.aln.bed
 
-#7.6 Call peaks using MACS3 (changed from using MACS2 since was not able to run on UCDavis cluster)
-macs3 callpeak –t prefix.primary.aln.bed -n prefix.macs3; echo "#7.6 Macs3" | mail -s "#7.6 Macs3" ojg333@gmail.com
+#7.6 Call peaks using MACS2 (Must be typed out not pasted or ran as snippet)
+module load macs2
+macs2 callpeak –t prefix.primary.aln.bed --nomodel -n prefix.macs2
 
 #8 Library QC
 python3 ./HiChiP/get_qc.py -p stats.txt
 
 #9 ChIP Enrichment Stats
 #Using narrowpeak bedfile format resulting from 1D peak call in 7.6
-./HiChiP/enrichment_stats.sh -g hg38.genome -b mapped.PT.bam -p /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs3_peaks.narrowPeak -t 50 -x CTCF; echo "#9 ChIP Enrichment Stats" | mail -s "#9 ChIP Enrichment Stats" ojg333@gmail.com
+#Since using module and env created by UCDavis core not using HiChiP directory
+module load hichip
+source activate hichip-cb6872b
+enrichment_stats.sh -g hg38.genome -b mapped.PT.bam -p /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs3_peaks.narrowPeak -t 50 -x CTCF; echo "#9 ChIP Enrichment Stats" | mail -s "#9 ChIP Enrichment Stats" ojg333@gmail.com
 
 #10 Plot ChIP enrichment
 module load hichip
 source activate hichip-cb6872b
 plot_chip_enrichment.py -bam mapped.PT.bam -peaks /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs3_peaks.narrowPeak -output enrichment.png; echo "#9 ChIP Enrichment Stats" | mail -s "#9 ChIP Enrichment Stats" ojg333@gmail.com
+
