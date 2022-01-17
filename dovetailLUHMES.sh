@@ -3,6 +3,7 @@
 #must run each sample group in separate folders though since aligned.sam file would be overwritten
 #adding email commands informs you when job is done (please change to your own email :P)
 #using concatenated samples although processing fastq samples separately and then using bedtools intersectBed would be better
+#If get error like numpy not detected, close down terminal and restart with just HiChiP module and env
 
 #sample nomenclature used
 neurons_R2.fastq.gz  undif_R1.fastq.gz
@@ -55,13 +56,20 @@ python3 ./HiChiP/get_qc.py -p stats.txt
 
 #9 ChIP Enrichment Stats
 #Using narrowpeak bedfile format resulting from 1D peak call in 7.6
-#Since using module and env created by UCDavis core not using HiChiP directory
+#Since using module and env created by UCDavis core not using ./HiChiP directory
 module load hichip
 source activate hichip-cb6872b
-enrichment_stats.sh -g hg38.genome -b mapped.PT.bam -p /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs3_peaks.narrowPeak -t 50 -x CTCF; echo "#9 ChIP Enrichment Stats" | mail -s "#9 ChIP Enrichment Stats" ojg333@gmail.com
+enrichment_stats.sh -g hg38.genome -b mapped.PT.bam -p /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs2_peaks.narrowPeak -t 30 -x CTCF; echo "#9 ChIP Enrichment Stats" | mail -s "#9 ChIP Enrichment Stats" ojg333@gmail.com
 
 #10 Plot ChIP enrichment
+#If needed reload module and env
 module load hichip
 source activate hichip-cb6872b
-plot_chip_enrichment.py -bam mapped.PT.bam -peaks /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs3_peaks.narrowPeak -output enrichment.png; echo "#9 ChIP Enrichment Stats" | mail -s "#9 ChIP Enrichment Stats" ojg333@gmail.com
+plot_chip_enrichment.py -bam mapped.PT.bam -peaks /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs3_peaks.narrowPeak -output enrichment.png; echo "#10 Plot ChIP enrichment" | mail -s "#10 Plot ChIP enrichment" ojg333@gmail.com
 
+#17 Filtered pairs to HiCpro pairs
+#Can skip to here if dont need hic or cooler contact matrix
+grep -v '#' mapped.pairs| awk -F"\t" '{print $1"\t"$2"\t"$3"\t"$6"\t"$4"\t"$5"\t"$7}' | gzip -c > hicpro_mapped.pairs.gz; echo "#17 pairs to HiCpro" | mail -s "#17 pairs to HiCpro" ojg333@gmail.com
+
+#20 Runs FitHiChIP
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/neuronscat/config.txt; echo "Process done" | mail -s "Process done" ojg333@gmail.com
