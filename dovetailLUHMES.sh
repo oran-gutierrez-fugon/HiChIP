@@ -71,5 +71,13 @@ plot_chip_enrichment.py -bam mapped.PT.bam -peaks /share/lasallelab/Oran/dovetai
 #Can skip to here if dont need hic or cooler contact matrix
 grep -v '#' mapped.pairs| awk -F"\t" '{print $1"\t"$2"\t"$3"\t"$6"\t"$4"\t"$5"\t"$7}' | gzip -c > hicpro_mapped.pairs.gz; echo "#17 pairs to HiCpro" | mail -s "#17 pairs to HiCpro" ojg333@gmail.com
 
+#Exit out of previos env and terminal session
+#18 & #19 start fithichip module and env
+module load fithichip
+source activate hicpro-3.1.0
+
 #20 Runs FitHiChIP
-FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/neuronscat/config.txt; echo "Process done" | mail -s "Process done" ojg333@gmail.com
+#Neurons
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/neuronscat/config.txt; echo "#20 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
+
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/merged/config.txt; echo "#20 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
