@@ -80,4 +80,70 @@ source activate hicpro-3.1.0
 #Neurons
 FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/neuronscat/config.txt; echo "#20 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
 
+#Undif
 FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/merged/config.txt; echo "#20 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
+
+#21 mapped.bam to bedgraph
+bamCoverage -b mapped.PT.bam -of bedgraph -p 36 -o 5k.coverage.bedgraph; echo "#21 mapped.bam to bedgraph" | mail -s "Job Done" ojg333@gmail.com
+
+#From here on best to use R studio on desktop after downloading bedgraph file and installing sushi library or run from terminal by first opening R with command $R
+#22 load sushi
+library("Sushi")
+#23 load data
+cov <- read.table("5k.coverage.bedgraph")
+arc <- read.table("CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed", header=TRUE)
+
+#24 Add column for distance in merged contacts file
+arc$dist <- abs(arc$e2 - arc$s1)
+head(arc)
+
+#25 Set region to visualize (AS locus)
+chrom = "chr15"
+chromstart = 25026666
+chromend = 25714271
+
+#26 Inspect coverage plot
+plotBedgraph(cov,chrom,chromstart,chromend)
+labelgenome(chrom,chromstart,chromend,n=4,scale="Mb")
+mtext("Read Depth",side=2,line=1.75,cex=1,font=2)
+axis(side=2,las=2,tcl=.2)
+
+#27 Plot arcs with arc heights based on contact frequency
+plotBedpe(arc,chrom,chromstart,chromend,heights = arc$sumCC,plottype="loops", flip=TRUE)
+labelgenome(chrom, chromstart,chromend,side=3, n=3,scale="Mb")
+axis(side=2,las=2,tcl=.2)
+mtext("contact freq",side=2,line=1.75,cex=.75,font=2)
+
+#28 Align and print both plots to a PDF file
+#where “{}” paste line-by-line rather than bulk copy and paste
+pdfname <- "hichip.cov.arcs.pdf"
+makepdf = TRUE
+if(makepdf==TRUE)
+      {
+      pdf(pdfname , height=10, width=12)
+      }
+
+##set layout
+layout(matrix(c(1,
+      2
+      ), 2,1, byrow=TRUE))
+par(mgp=c(3,.3,0))
+
+##plot coverage
+par(mar=c(3,4,2,2))
+plotBedgraph(cov,chrom,chromstart,chromend)
+labelgenome(chrom,chromstart,chromend,n=4,scale="Mb")
+mtext("Read Depth",side=2,line=1.75,cex=1,font=2)
+axis(side=2,las=2,tcl=.2)
+
+##plot arcs with height based on contact frequency
+par(mar=c(3,4,2,2))
+plotBedpe(arc,chrom,chromstart,chromend,heights = arc$sumCC,plottype="loops", flip=TRUE)
+labelgenome(chrom, chromstart,chromend,side=3, n=3,scale="Mb")
+axis(side=2,las=2,tcl=.2)
+mtext("contact freq"",side=2,line=1.75,cex=.75,font=2)
+
+if (makepdf==TRUE)
+{
+dev.off()
+}
