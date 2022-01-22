@@ -84,7 +84,11 @@ FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/neuronscat/config.
 FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/merged/config.txt; echo "#20 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
 
 #21 mapped.bam to bedgraph
-bamCoverage -b mapped.PT.bam -of bedgraph -p 36 -o 5k.coverage.bedgraph; echo "#21 mapped.bam to bedgraph" | mail -s "Job Done" ojg333@gmail.com
+#Exit out of previos env and terminal session
+module load fithichip
+source activate hicpro-3.1.0
+
+bamCoverage -b mapped.PT.bam -of bedgraph -p 36 -o 5k.coverage.bedgraph; echo "#21 mapped.bam to bedgraph" | mail -s "#21 mapped.bam to bedgraph" ojg333@gmail.com
 
 #From here on best to use R studio on desktop after downloading bedgraph file and installing sushi library or run from terminal by first opening R with command $R
 #22 load sushi
@@ -97,10 +101,50 @@ arc <- read.table("CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed",
 arc$dist <- abs(arc$e2 - arc$s1)
 head(arc)
 
-#25 Set region to visualize (AS locus)
+#25 Set region to visualize (AS locus) hg19 chr15:24963895-26388896
 chrom = "chr15"
-chromstart = 25026666
-chromend = 25714271
+chromstart = 24718748
+chromend = 26143749
+
+####Neurons concat interactions####
+#zoomed entire locus with interactions hg19 chr15:25365147-26195147
+chromstart = 25120000
+chromend = 25950000
+
+#zoomed From PWAR1 "Interaction-1" hg19 chr15:25365147-25765147
+chromstart = 25120000
+chromend = 25520000
+
+#zoomed "Interaction-2" (smaller)" hg19 chr15:25745147-25945147
+chromstart = 25500000
+chromend = 25700000
+
+#zoomed "Interaction-3 (larger)" hg19 chr15:25745147-26195147
+chromstart = 25500000
+chromend = 25950000
+
+#zoomed "Interaction-4" hg19 chr15:25930147-26185147
+chromstart = 25685000
+chromend = 25940000
+
+#zoomed "Interaction-5" hg19 chr15:25975147-26185147
+chromstart = 25730000
+chromend = 25940000
+
+#zoomed "Interaction-6" hg19 chr15:26151647-26178547
+chromstart = 25906500
+chromend = 25933400
+
+####Undif concat interactions####
+#zoomed into different one from neurons hg19  chr15:25567147-25688147
+chrom = "chr15"
+chromstart = 25322000
+chromend = 25443000
+
+#NHIP entire locus chr22:49395812-49993648
+chrom = "chr22"
+chromstart = 49000000
+chromend = 49600000
 
 #26 Inspect coverage plot
 plotBedgraph(cov,chrom,chromstart,chromend)
@@ -147,3 +191,27 @@ if (makepdf==TRUE)
 {
 dev.off()
 }
+
+#For diff analysis (better than concatenating samples) 
+#first use valid.pairs files as input to FitHiChiP 
+#then run differentail.analysis.script.sh on resulting
+#CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed file (Incorrect bed file, must be all contacts not just Q0.10
+Can also use DiffBind with R studio as described https://hbctraining.github.io/Intro-to-ChIPseq/lessons/08_diffbind_differential_peaks.html
+
+
+#Diff analysis command from https://ay-lab.github.io/FitHiChIP/usage/DiffLoops.html
+First convert broadpeak bed file to bam (example bedToBam -i rmsk.hg18.chr21.bed -g human.hg18.genome > rmsk.hg18.chr21.bam)
+bedToBam -i /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs3_summits.bed -g /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.genome > /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs3_summits.bam
+
+#Copied fithichip folder from /software to DifAnalysis folder
+#Apparently needed to have same amount of replicates per category so did not include UDP2-1, UDP2-2
+
+#Open new terminal and load module, env
+module load fithichip
+source activate hicpro-3.1.0
+
+/share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichip/9.1/lssc0-linux/Differetial_Analysis_Script.sh --AllLoopList /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat1_repl1.bed, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat1_repl2.bed, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat1_repl3.bed, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat1_repl4.bed, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat1_repl5.bed, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat2_repl1.bed, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat2_repl2.bed, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat2_repl3.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.10 --CovThr 25 --ChIPAlignFileList /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat1_ChIPAlign.bam, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat2_ChIPAlign.bam --OutDir /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/output --CategoryList 'Undifferentiated':'Neurons' --ReplicaCount 2:3 --ReplicaLabels1 "R1":"R2":"R3" --ReplicaLabels2 "R1":"R2":"R3" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
+
+#since error writing to ucdavis fithichip env can download Rscript from https://github.com/ay-lab/FitHiChIP/blob/master/Imp_Scripts/DiffAnalysisHiChIP.r
+or
+git clone https://github.com/ay-lab/FitHiChIP.git
