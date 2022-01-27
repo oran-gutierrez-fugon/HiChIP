@@ -1,4 +1,4 @@
-#first copied hichip and pairix folders
+#first copied hichip and pairix folders (not needed on UC Davis cluster when using module and env)
 #then all hg38 titled files to new directory "merged" and 'neuronscat"
 #must run each sample group in separate folders though since aligned.sam file would be overwritten
 #adding email commands informs you when job is done (please change to your own email :P)
@@ -141,10 +141,25 @@ chrom = "chr15"
 chromstart = 25322000
 chromend = 25443000
 
-#NHIP entire locus chr22:49395812-49993648
+#NHIP entire locus chr22:49395812-49993648 (hg 38)
 chrom = "chr22"
 chromstart = 49000000
 chromend = 49600000
+
+#NHIP DMR block chr22:49044669 – 49162642 (hg38), not present in neurons
+chrom = "chr22"
+chromstart = 49044669
+chromend = 49162642
+ 
+#NHIP LOC105373085 AK057312 chr22: 49043941 - 49052549 (hg38) *had to expand, not present in neurons
+chrom = "chr22"	
+chromstart = 49027000
+chromend = 49048000
+
+#NHIP Insertion: Location chr22: 49029657 (hg38) *expanded to nearest loop, not present in neurons
+chrom = "chr22"
+chromstart = 49027000
+chromend = 49048000
 
 #26 Inspect coverage plot
 plotBedgraph(cov,chrom,chromstart,chromend)
@@ -185,7 +200,7 @@ par(mar=c(3,4,2,2))
 plotBedpe(arc,chrom,chromstart,chromend,heights = arc$sumCC,plottype="loops", flip=TRUE)
 labelgenome(chrom, chromstart,chromend,side=3, n=3,scale="Mb")
 axis(side=2,las=2,tcl=.2)
-mtext("contact freq"",side=2,line=1.75,cex=.75,font=2)
+mtext("contact freq",side=2,line=1.75,cex=.75,font=2)
 
 if (makepdf==TRUE)
 {
@@ -204,14 +219,14 @@ First convert broadpeak bed file to bam (example bedToBam -i rmsk.hg18.chr21.bed
 bedToBam -i /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs3_summits.bed -g /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.genome > /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs3_summits.bam
 
 #Copied fithichip folder from /software to DifAnalysis folder
-#Apparently needed to have same amount of replicates per category so did not include UDP2-1, UDP2-2
+#UDP2-1, UDP2-2 correspond to cat1repl4, cat1repl5
 
 #Open new terminal and load module, env
 module load fithichip
 source activate hicpro-3.1.0
 
-/share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichip/9.1/lssc0-linux/Differetial_Analysis_Script.sh --AllLoopList /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat1_repl1.bed, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat1_repl2.bed, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat1_repl3.bed, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat1_repl4.bed, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat1_repl5.bed, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat2_repl1.bed, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat2_repl2.bed, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat2_repl3.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.10 --CovThr 25 --ChIPAlignFileList /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat1_ChIPAlign.bam, /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/cat2_ChIPAlign.bam --OutDir /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/output --CategoryList 'Undifferentiated':'Neurons' --ReplicaCount 2:3 --ReplicaLabels1 "R1":"R2":"R3" --ReplicaLabels2 "R1":"R2":"R3" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
+#Must not have any spaces between commas, also removed directory before bed and bam files, be careful to not have enter spaces either.
 
-#since error writing to ucdavis fithichip env can download Rscript from https://github.com/ay-lab/FitHiChIP/blob/master/Imp_Scripts/DiffAnalysisHiChIP.r
-or
-git clone https://github.com/ay-lab/FitHiChIP.git
+#Executed From (hicpro-3.1.0) fugon@epigenerate:/share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis$ 
+
+Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichip/9.1/lssc0-linux/Imp_Scripts/DiffAnalysisHiChIP.r --AllLoopList cat1_repl1.bed,cat1_repl2.bed,cat1_repl3.bed,cat1_repl4.bed,cat1_repl5.bed,cat2_repl1.bed,cat2_repl2.bed,cat2_repl3.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.10 --CovThr 25 --ChIPAlignFileList cat1_ChIPAlign.bam,cat2_ChIPAlign.bam --OutDir /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/outdir/ --CategoryList 'Undiff':'Neurons' --ReplicaCount 5:3 --ReplicaLabels1 "R1":"R2":"R3":"R4":"R5" --ReplicaLabels2 "R1":"R2":"R3" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
