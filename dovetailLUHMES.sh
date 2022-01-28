@@ -153,8 +153,8 @@ chromend = 49162642
  
 #NHIP LOC105373085 AK057312 chr22: 49043941 - 49052549 (hg38) *had to expand, not present in neurons
 chrom = "chr22"	
-chromstart = 49027000
-chromend = 49048000
+chromstart = 49026941
+chromend = 49082549
 
 #NHIP Insertion: Location chr22: 49029657 (hg38) *expanded to nearest loop, not present in neurons
 chrom = "chr22"
