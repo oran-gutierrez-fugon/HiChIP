@@ -161,6 +161,12 @@ chrom = "chr22"
 chromstart = 49027000
 chromend = 49048000
 
+#NHIP Fetal brain enhancer 49025000 - 49055000 *same loop seen around the NHIP insertion (49027000-49048000)
+chrom = "chr22"
+chromstart = 49025000
+chromend = 49055000
+
+
 #26 Inspect coverage plot
 plotBedgraph(cov,chrom,chromstart,chromend)
 labelgenome(chrom,chromstart,chromend,n=4,scale="Mb")
