@@ -141,22 +141,22 @@ chrom = "chr15"
 chromstart = 25322000
 chromend = 25443000
 
-#NHIP entire locus chr22:49395812-49993648 (hg 38)
+#NHIP entire locus chr22:49000000-49600000 (hg 38)	chr22:49395812-49993648 (hg19)	
 chrom = "chr22"
 chromstart = 49000000
 chromend = 49600000
 
-#NHIP DMR block chr22:49044669 – 49162642 (hg38), not present in neurons
+#NHIP DMR block chr22:49044669 – 49162642 (hg38), not present in neurons	chr22:49440481-49558654 (hg19)
 chrom = "chr22"
 chromstart = 49044669
 chromend = 49162642
  
-#NHIP LOC105373085 AK057312 chr22: 49043941 - 49052549 (hg38) *had to expand, not present in neurons
+#NHIP AK057312 chr22: 49043941 - 49052549 (hg38) *had to expand, not present in neurons	chr22:49422753-49478361 (hg19)
 chrom = "chr22"	
 chromstart = 49026941
 chromend = 49082549
 
-#NHIP Insertion: Location chr22: 49029657 (hg38) *expanded to nearest loop, not present in neurons
+#NHIP Insertion: Location chr22: 49029657 (hg38) chr22:49425469(hg19)  chr22:49027000-49048000 (hg38) *expanded to nearest loop, not present in neurons chr22:49422812-49443812 (hg19)   minus 10 and plus 10 from insertion 49425459-49425469 (hg19) results in sequence GAAAACTCCTTGCTCAAAAGC 
 chrom = "chr22"
 chromstart = 49027000
 chromend = 49048000
