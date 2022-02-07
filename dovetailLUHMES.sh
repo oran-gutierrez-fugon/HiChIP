@@ -96,6 +96,21 @@ library("Sushi")
 #23 load data
 cov <- read.table("5k.coverage.bedgraph")
 arc <- read.table("CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed", header=TRUE)
+#actual used from personal mac folders for concatenated samples
+arc <- read.table("/Users/fsociety/Downloads/Dovetailoutput/Undif/CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed", header=TRUE)
+arc <- read.table("/Users/fsociety/Downloads/Dovetailoutput/Neurons/CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed", header=TRUE)
+
+#from USB drive
+arc <- read.table("/Volumes/DOVETAIL/UDP2-1_Merge_Nearby_Interactions/CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed", header=TRUE)
+arc <- read.table("/Volumes/DOVETAIL/UDP2-2_Merge_Nearby_Interactions/CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed", header=TRUE)
+arc <- read.table("/Volumes/DOVETAIL/UDP4-1_Merge_Nearby_Interactions/CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed", header=TRUE)
+arc <- read.table("/Volumes/DOVETAIL/UDP4-2_Merge_Nearby_Interactions/CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed", header=TRUE)
+arc <- read.table("/Volumes/DOVETAIL/UDP4-3_Merge_Nearby_Interactions/CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed", header=TRUE)
+arc <- read.table("/Volumes/DOVETAIL/NP4-1_Merge_Nearby_Interactions/CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed", header=TRUE)
+arc <- read.table("/Volumes/DOVETAIL/NP4-2_Merge_Nearby_Interactions/CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed", header=TRUE)
+arc <- read.table("/Volumes/DOVETAIL/NP4-3_Merge_Nearby_Interactions/CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed", header=TRUE)
+
+
 
 #24 Add column for distance in merged contacts file
 arc$dist <- abs(arc$e2 - arc$s1)
@@ -106,7 +121,7 @@ chrom = "chr15"
 chromstart = 24718748
 chromend = 26143749
 
-####Neurons concat interactions####
+####LUHMES concat interactions####
 #zoomed entire locus with interactions hg19 chr15:25365147-26195147
 chromstart = 25120000
 chromend = 25950000
@@ -115,9 +130,24 @@ chromend = 25950000
 chromstart = 25120000
 chromend = 25520000
 
+#From Bed file exact Large loop present in both undif and neurons****USED FOR gRNA Targeting
+#Comparison ofall data shows highest methylation right up-stream ofthe PAM site (around +25 bp). 
+#A second (weaker) peak of methylation is observed downstream of the PAM
+#25–30 nucleotide pairs centered at the 27th site (around –40 bp).
+#Therefore PAM should be target 25-30bp UPSTREAM of CpG on CTCF binding site with another non fusion dCas9 at CTCF binding site
+#Contact points 25135000-25140000 to 25500000-25505000 (hg38)		chr15:25380147-25385147 to chr15:25745147-25750147 (hg19)
+
+chromstart = 25135000
+chromend = 25505000
+
 #zoomed "Interaction-2" (smaller)" hg19 chr15:25745147-25945147
 chromstart = 25500000
 chromend = 25700000
+
+#From Bed file exact small loop present in only undif****
+#Contact points 25330000-25335000 to 25435000-25440000 (hg38) 		chr15:25575147-25580147 to chr15:25680147-25685147 (hg19)
+chromstart = 25330000
+chromend = 25440000
 
 #zoomed "Interaction-3 (larger)" hg19 chr15:25745147-26195147
 chromstart = 25500000
