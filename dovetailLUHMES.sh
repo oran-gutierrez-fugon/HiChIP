@@ -67,6 +67,18 @@ module load hichip
 source activate hichip-cb6872b
 plot_chip_enrichment.py -bam mapped.PT.bam -peaks /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs3_peaks.narrowPeak -output enrichment.png; echo "#10 Plot ChIP enrichment" | mail -s "#10 Plot ChIP enrichment" ojg333@gmail.com
 
+
+For generating contact maps
+#Since juicertools not installed in UC Davis HiChiP env, may need to download and install first
+wget https://s3.amazonaws.com/hicfiles.tc4ga.com/public/juicer/juicer_tools_1.22.01.jar
+mv juicer_tools_1.22.01.jar ./HiChiP/juicertools.jar
+
+#11 From .pairs to .hic contact matrix
+java -Xmx240000m  -Djava.awt.headless=true -jar ./HiChiP/juicertools.jar pre --threads 30 mapped.pairs contact_map.hic hg38.genome; echo "#11 .pairs to .hic" | mail -s "#11 .pairs to .hic" ojg333@gmail.com
+#For individual pair files (example for NP4-1)
+java -Xmx240000m  -Djava.awt.headless=true -jar ./HiChiP/juicertools.jar pre --threads 30 /share/lasallelab/Oran/dovetail/luhmes/24-12-2021_06:26:08_epi_delivery/validPairs/UNI2695.valid.pairs.gz NP4-1_contact_map.hic hg38.genome; echo "#11 Individual .pairs to .hic" | mail -s "#11 Individual .pairs to .hic" ojg333@gmail.com
+ 
+
 #17 Filtered pairs to HiCpro pairs
 #Can skip to here if dont need hic or cooler contact matrix
 grep -v '#' mapped.pairs| awk -F"\t" '{print $1"\t"$2"\t"$3"\t"$6"\t"$4"\t"$5"\t"$7}' | gzip -c > hicpro_mapped.pairs.gz; echo "#17 pairs to HiCpro" | mail -s "#17 pairs to HiCpro" ojg333@gmail.com
@@ -126,7 +138,7 @@ chromend = 26143749
 chromstart = 25120000
 chromend = 25950000
 
-#zoomed From PWAR1 "Interaction-1" hg19 chr15:25365147-25765147
+#zoomed From PWAR1 Interaction-1 "larger" hg19 chr15:25365147-25765147
 chromstart = 25120000
 chromend = 25520000
 
