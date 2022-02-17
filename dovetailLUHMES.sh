@@ -1,3 +1,25 @@
+#KEY for names is found in UNI2695_sample_sheetDECODED.csv
+#Concatenated all 5 Undif and all 3 dif
+#Will also concatenate just NP4-1 with NP4-2 (DTG-HiChIP-145,DTG-HiChIP-146 ; DTG-HiChIP-135,DTG-HiChIP-136) for neurons and UDP4-1 with UDP4-2 (DTG-HiChIP-137,DTG-HiChIP-138 ; DTG-HiChIP-143, DTG-HiChIP-144).  Will also concat UDP2-1 and UDP2-2 (DTG-HiChIP-139,DTG-HiChIP-140 ; DTG-HiChIP-147,DTG-HiChIP-148) since its from an earlier passage
+#Remember to load other modules as before when using xmen env if need to install something since this loads anaconda
+
+
+#Example for Neurons R1's  cat sampleA_S1_R1.fastq.gz  sampleB_S2_R1.fastq.gz > Condition1_R1.fastq.gz
+#NP4-1 with NP4-2 R1
+cat DTG-HiChIP-145_R1_001.fastq.gz  DTG-HiChIP-146_R1_001.fastq.gz DTG-HiChIP-135_R1_001.fastq.gz DTG-HiChIP-136_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1-2_R1.fastq.gz
+#UDP4-1 with UDP4-2 R1
+cat DTG-HiChIP-137_R1_001.fastq.gz  DTG-HiChIP-138_R1_001.fastq.gz DTG-HiChIP-143_R1_001.fastq.gz DTG-HiChIP-144_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/UDP4-1-2_R1.fastq.gz
+#UDP2-1 with UDP2-2 R1
+cat DTG-HiChIP-139_R1_001.fastq.gz  DTG-HiChIP-140_R1_001.fastq.gz DTG-HiChIP-147_R1_001.fastq.gz DTG-HiChIP-148_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/UDP2-1-2_R1.fastq.gz
+
+#NP4-1 with NP4-2 R2
+cat DTG-HiChIP-145_R2_001.fastq.gz  DTG-HiChIP-146_R2_001.fastq.gz DTG-HiChIP-135_R2_001.fastq.gz DTG-HiChIP-136_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1-2_R2.fastq.gz
+#UDP4-1 with UDP4-2 R2
+cat DTG-HiChIP-137_R2_001.fastq.gz  DTG-HiChIP-138_R2_001.fastq.gz DTG-HiChIP-143_R2_001.fastq.gz DTG-HiChIP-144_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/UDP4-1-2_R2.fastq.gz
+#UDP2-1 with UDP2-2 R2
+cat DTG-HiChIP-139_R2_001.fastq.gz  DTG-HiChIP-140_R2_001.fastq.gz DTG-HiChIP-147_R2_001.fastq.gz DTG-HiChIP-148_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/UDP2-1-2_R2.fastq.gz
+
+
 #first copied hichip and pairix folders (not needed on UC Davis cluster when using module and env)
 #then all hg38 titled files to new directory "merged" and 'neuronscat"
 #must run each sample group in separate folders though since aligned.sam file would be overwritten
@@ -8,14 +30,26 @@
 #sample nomenclature used
 neurons_R2.fastq.gz  undif_R1.fastq.gz
 
+#0 For lazy and no intermediate files
+bwa mem -5SP -T0 -t50 /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.fasta NP4-1-2_R1.fastq.gz NP4-1-2_R2.fastq.gz| pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 50 --nproc-out 50 --chroms-path /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.genome | pairtools sort --tmpdir=/share/lasallelab/Oran/dovetail/luhmes/catbalanced/temp/ --nproc 40|pairtools dedup --nproc-in 30 --nproc-out 30 --mark-dups --output-stats stats.txt|pairtools split --nproc-in 30 --nproc-out 30 --output-pairs NP4-1-2_mapped.pairs --output-sam -|samtools view -bS -@16 | samtools sort -@30 -o NP4-1-2_mapped.PT.bam;samtools index NP4-1-2_mapped.PT.bam
+
 #1 bwa fastq to aligned.sam
 bwa mem -5SP -T0 -t50 hg38.fasta undif_R1.fastq.gz undif_R2.fastq.gz -o aligned.sam; echo "#1 bwa done" | mail -s "#1 bwa done" ojg333@gmail.com
-
 #for neurons from neuronscat folder
 bwa mem -5SP -T0 -t50 hg38.fasta neurons_R1.fastq.gz neurons_R2.fastq.gz -o aligned.sam; echo "#1 bwa done" | mail -s "#1 bwa done" ojg333@gmail.com
+#For NP4
+bwa mem -5SP -T0 -t50 /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.fasta NP4-1-2_R1.fastq.gz NP4-1-2_R2.fastq.gz -o NP4aligned.sam; echo "#1 bwa done" | mail -s "#1 bwa done" ojg333@gmail.com
+#For UDP4
+bwa mem -5SP -T0 -t50 /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.fasta UDP4-1-2_R1.fastq.gz UDP4-1-2_R2.fastq.gz -o UDP4aligned.sam; echo "#1 UDP4 bwa done" | mail -s "#1 UDP4 bwa done" ojg333@gmail.com
 
-#2 Pairtools aligned sam to parsed.pairsam
+
+#2 Pairtools aligned sam to parsed.pairsam (not present in UCD)
 pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 50 --nproc-out 50 --chroms-path hg38.genome aligned.sam >  parsed.pairsam; echo "#2 pairtools done" | mail -s "#2 pairtools done" ojg333@gmail.com
+#For NP4
+pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 30 --nproc-out 30 --chroms-path /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.genome aligned.sam >  parsed.pairsam; echo "#2 NP4 pairtools done" | mail -s "#2 pairtools done" ojg333@gmail.com
+#FOR UDP4
+pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 30 --nproc-out 30 --chroms-path /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.genome UDP4aligned.sam >  UDP4parsed.pairsam; echo "#2 UDP4 pairtools done" | mail -s "#2 pairtools done" ojg333@gmail.com
+
 
 #3 Sorting the pairsam file. 
 #Must create temp/ directory or this step will error out! 
@@ -73,11 +107,33 @@ For generating contact maps
 wget https://s3.amazonaws.com/hicfiles.tc4ga.com/public/juicer/juicer_tools_1.22.01.jar
 mv juicer_tools_1.22.01.jar ./HiChiP/juicertools.jar
 
-#11 From .pairs to .hic contact matrix
+#May not need since hic and coolers files were part of output given by Dovetail
+#Will need for concatenated samples
+#11 From .pairs to .hic contact matrix (concatenated filesc)
 java -Xmx240000m  -Djava.awt.headless=true -jar ./HiChiP/juicertools.jar pre --threads 30 mapped.pairs contact_map.hic hg38.genome; echo "#11 .pairs to .hic" | mail -s "#11 .pairs to .hic" ojg333@gmail.com
+
 #For individual pair files (example for NP4-1)
-java -Xmx240000m  -Djava.awt.headless=true -jar ./HiChiP/juicertools.jar pre --threads 30 /share/lasallelab/Oran/dovetail/luhmes/24-12-2021_06:26:08_epi_delivery/validPairs/UNI2695.valid.pairs.gz NP4-1_contact_map.hic hg38.genome; echo "#11 Individual .pairs to .hic" | mail -s "#11 Individual .pairs to .hic" ojg333@gmail.com
- 
+java -Xmx240000m  -Djava.awt.headless=true -jar /share/lasallelab/Oran/dovetail/luhmes/neuronscat/HiChiP/juicertools.jar pre --threads 30 /share/lasallelab/Oran/dovetail/luhmes/24-12-2021_06:26:08_epi_delivery/validPairs/UNI2695.valid.pairs.gz NP4-1_contact_map.hic /share/lasallelab/Oran/dovetail/luhmes/neuronscat/hg38.genome; echo "#11 Individual .pairs to .hic" | mail -s "#11 Individual .pairs to .hic" ojg333@gmail.com
+
+#For individual pair file NP4-2 only need sample submission form to determine which files
+java -Xmx240000m  -Djava.awt.headless=true -jar /share/lasallelab/Oran/dovetail/luhmes/neuronscat/HiChiP/juicertools.jar pre --threads 30 /share/lasallelab/Oran/dovetail/luhmes/24-12-2021_06:26:08_epi_delivery/validPairs/UNI2696.valid.pairs.gz NP4-2_contact_map.hic /share/lasallelab/Oran/dovetail/luhmes/neuronscat/hg38.genome; echo "#11 Individual .pairs to .hic" | mail -s "#11 Individual .pairs to .hic" ojg333@gmail.com
+
+#12 Install pairix and set path
+git clone https://github.com/4dn-dcic/pairix
+cd pairix
+make
+#Add the bin path, and utils path to PATH and exit the folder: May not need to exit either since using full path, but should be from pairix folder.  Also ran from base path not UCDavis hichip or xmen
+PATH=/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/bin/:/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/util:/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/bin/pairix:$PATH
+cd ..
+
+#13 Prep mapped pairs for indexing (last time had to use xmen env only) DO NOT USE gzip as this format will not be accepted by pairix
+bgzip mapped.pairs
+
+#14 Index mapped.pairs (had to type out last time but could be due to previous error setting path without luhmes folder)
+pairix mapped.pairs.gz
+
+#15 Single Resolution Contact Matrix
+cooler cload pairix -p 50 hg38.genome:1000 mapped.pairs.gz matrix_1kb.cool
 
 #17 Filtered pairs to HiCpro pairs
 #Can skip to here if dont need hic or cooler contact matrix
