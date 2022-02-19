@@ -2,7 +2,10 @@
 #Concatenated all 5 Undif and all 3 dif
 #Will also concatenate just NP4-1 with NP4-2 (DTG-HiChIP-145,DTG-HiChIP-146 ; DTG-HiChIP-135,DTG-HiChIP-136) for neurons and UDP4-1 with UDP4-2 (DTG-HiChIP-137,DTG-HiChIP-138 ; DTG-HiChIP-143, DTG-HiChIP-144).  Will also concat UDP2-1 and UDP2-2 (DTG-HiChIP-139,DTG-HiChIP-140 ; DTG-HiChIP-147,DTG-HiChIP-148) since its from an earlier passage
 #Remember to load other modules as before when using xmen env if need to install something since this loads anaconda
-
+#Concatenated neurons number of reads 314005891
+#Concatenated undif number of reads 623477205
+#percent neurons/undif reads 0.50363652188
+#After subsampling ended up with 314033091
 
 #Example for Neurons R1's  cat sampleA_S1_R1.fastq.gz  sampleB_S2_R1.fastq.gz > Condition1_R1.fastq.gz
 #NP4-1 with NP4-2 R1
@@ -118,6 +121,9 @@ java -Xmx240000m  -Djava.awt.headless=true -jar /share/lasallelab/Oran/dovetail/
 #For individual pair file NP4-2 only need sample submission form to determine which files
 java -Xmx240000m  -Djava.awt.headless=true -jar /share/lasallelab/Oran/dovetail/luhmes/neuronscat/HiChiP/juicertools.jar pre --threads 30 /share/lasallelab/Oran/dovetail/luhmes/24-12-2021_06:26:08_epi_delivery/validPairs/UNI2696.valid.pairs.gz NP4-2_contact_map.hic /share/lasallelab/Oran/dovetail/luhmes/neuronscat/hg38.genome; echo "#11 Individual .pairs to .hic" | mail -s "#11 Individual .pairs to .hic" ojg333@gmail.com
 
+#For subsampled pair file subsample.pairs
+java -Xmx240000m  -Djava.awt.headless=true -jar ./HiChiP/juicertools.jar pre --threads 30 subsample.pairs subcontact_map.hic hg38.genome; echo "#11 SUB.pairs to .hic" | mail -s "#11 .pairs to .hic" ojg333@gmail.com
+
 #12 Install pairix and set path
 git clone https://github.com/4dn-dcic/pairix
 cd pairix
@@ -126,18 +132,29 @@ make
 PATH=/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/bin/:/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/util:/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/bin/pairix:$PATH
 cd ..
 
-#13 Prep mapped pairs for indexing (last time had to use xmen env only) DO NOT USE gzip as this format will not be accepted by pairix
+#13 Prep mapped pairs for indexing (last time had to use xmen env only) DO NOT USE gzip as this format will not be accepted by pairix also keep unziped copy to avoid issues when unzipping for downstream analysis, use -k option to keep original file, also to unzip and keep original use (for subsample) gunzip -c subsample.pairs.gz >subsample.pairs
 bgzip mapped.pairs
 
 #14 Index mapped.pairs (had to type out last time but could be due to previous error setting path without luhmes folder)
 pairix mapped.pairs.gz
 
 #15 Single Resolution Contact Matrix
-cooler cload pairix -p 50 hg38.genome:1000 mapped.pairs.gz matrix_1kb.cool
+#Use UC Davis env created using
+module load cooler
+source activate cooler-0.8.11
+
+cooler cload pairix -p 30 hg38.genome:1000 mapped.pairs.gz matrix_1kb.cool
+
+#16 Multiresolution Contact Matrix
+cooler zoomify --balance -p 16 matrix_1kb.cool
 
 #17 Filtered pairs to HiCpro pairs
 #Can skip to here if dont need hic or cooler contact matrix
 grep -v '#' mapped.pairs| awk -F"\t" '{print $1"\t"$2"\t"$3"\t"$6"\t"$4"\t"$5"\t"$7}' | gzip -c > hicpro_mapped.pairs.gz; echo "#17 pairs to HiCpro" | mail -s "#17 pairs to HiCpro" ojg333@gmail.com
+
+#For subsampled undif
+grep -v '#' subsample.pairs| awk -F"\t" '{print $1"\t"$2"\t"$3"\t"$6"\t"$4"\t"$5"\t"$7}' | gzip -c > hicpro_subsample.pairs.gz; echo "#17 pairs to HiCpro" | mail -s "#17 pairs to HiCpro" ojg333@gmail.com
+
 
 #Exit out of previos env and terminal session
 #18 & #19 start fithichip module and env
