@@ -128,7 +128,7 @@ java -Xmx240000m  -Djava.awt.headless=true -jar ./HiChiP/juicertools.jar pre --t
 git clone https://github.com/4dn-dcic/pairix
 cd pairix
 make
-#Add the bin path, and utils path to PATH and exit the folder: May not need to exit either since using full path, but should be from pairix folder.  Also ran from base path not UCDavis hichip or xmen
+#Add the bin path, and utils path to PATH and exit the folder: May not need to exit either since using full path, but should be from pairix folder.  Also ran from base path not UCDavis hichip or xmen.  From hichip module on merged folder just needed to set path
 PATH=/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/bin/:/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/util:/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/bin/pairix:$PATH
 cd ..
 
@@ -144,9 +144,13 @@ module load cooler
 source activate cooler-0.8.11
 
 cooler cload pairix -p 30 hg38.genome:1000 mapped.pairs.gz matrix_1kb.cool
+#Subsample
+cooler cload pairix -p 30 hg38.genome:1000 subsample.pairs.gz submatrix_1kb.cool
 
 #16 Multiresolution Contact Matrix
 cooler zoomify --balance -p 16 matrix_1kb.cool
+#subsample
+cooler zoomify --balance -p 16 submatrix_1kb.cool
 
 #17 Filtered pairs to HiCpro pairs
 #Can skip to here if dont need hic or cooler contact matrix
@@ -163,7 +167,7 @@ source activate hicpro-3.1.0
 
 #20 Runs FitHiChIP
 #Neurons
-FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/neuronscat/config.txt; echo "#20 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/neuronscat/config.txt; echo "#20 01 Neurons FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
 
 #Undif
 FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/merged/config.txt; echo "#20 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
