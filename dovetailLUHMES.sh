@@ -127,7 +127,7 @@ java -Xmx240000m  -Djava.awt.headless=true -jar /share/lasallelab/Oran/dovetail/
 java -Xmx240000m  -Djava.awt.headless=true -jar /share/lasallelab/Oran/dovetail/luhmes/neuronscat/HiChiP/juicertools.jar pre --threads 30 /share/lasallelab/Oran/dovetail/luhmes/24-12-2021_06:26:08_epi_delivery/validPairs/UNI2696.valid.pairs.gz NP4-2_contact_map.hic /share/lasallelab/Oran/dovetail/luhmes/neuronscat/hg38.genome; echo "#11 Individual .pairs to .hic" | mail -s "#11 Individual .pairs to .hic" ojg333@gmail.com
 
 #For subsampled pair file subsample.pairs
-java -Xmx240000m  -Djava.awt.headless=true -jar ./HiChiP/juicertools.jar pre --threads 30 subsample.pairs subcontact_map.hic hg38.genome; echo "#11 SUB.pairs to .hic" | mail -s "#11 .pairs to .hic" ojg333@gmail.com
+java -Xmx48000m  -Djava.awt.headless=true -jar ./HiChiP/juicertools.jar pre --threads 16 subsample33.pairs sub33contact_map.hic hg38.genome; echo "#11 SUB33.pairs to .hic" | mail -s "#11 .pairs to .hic" ojg333@gmail.com
 
 #12 Install pairix and set path
 git clone https://github.com/4dn-dcic/pairix
@@ -150,12 +150,12 @@ source activate cooler-0.8.11
 
 cooler cload pairix -p 30 hg38.genome:1000 mapped.pairs.gz matrix_1kb.cool
 #Subsample
-cooler cload pairix -p 30 hg38.genome:1000 subsample.pairs.gz submatrix_1kb.cool
+cooler cload pairix -p 16 hg38.genome:1000 subsample33.pairs.gz sub33matrix_1kb.cool
 
 #16 Multiresolution Contact Matrix
 cooler zoomify --balance -p 16 matrix_1kb.cool
 #subsample
-cooler zoomify --balance -p 16 submatrix_1kb.cool
+cooler zoomify --balance -p 16 sub33matrix_1kb.cool
 
 #17 Filtered pairs to HiCpro pairs
 #Can skip to here if dont need hic or cooler contact matrix
@@ -183,6 +183,10 @@ module load fithichip
 source activate hicpro-3.1.0
 
 bamCoverage -b mapped.PT.bam -of bedgraph -p 36 -o 5k.coverage.bedgraph; echo "#21 mapped.bam to bedgraph" | mail -s "#21 mapped.bam to bedgraph" ojg333@gmail.com
+
+'''
+#note for subsample.bam and subsample33.bam, these are not the same as pairs file subsamples (must go back before mapped.PT.bam and subsample and do again if want to match that) so no point in using these bam or making bigwig files for these, unless can figure out a way to go from pairs to bam but current sumsample bams are useless
+'''
 
 #From here on best to use R studio on desktop after downloading bedgraph file and installing sushi library or run from terminal by first opening R with command $R
 #22 load sushi
@@ -363,7 +367,7 @@ Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichi
 
 
 #Make a bigwig over your region of interest (https://deeptools.readthedocs.io/en/develop/content/tools/bamCoverage.html)
-deepTools bamCoverage --ignoreDuplicates -bs 1 -p 20 -r chr15:24718748-26143749 -b mapped.PT.bam -o ASneurons.bigwig
+deepTools bamCoverage --ignoreDuplicates -bs 1 -p 20 -r chr15:24718748-26143749 -b subsample.bam -o subsample.bigwig
 '''
 --ignoreDuplicates = do not include PCR dups (should be removed already, but its always better to be safe here)
 -bs = bin size here its 50bp - you can change to 1 for single nt, or 1000 for 1kb bins
