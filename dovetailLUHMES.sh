@@ -2,10 +2,15 @@
 #Concatenated all 5 Undif and all 3 dif
 #Will also concatenate just NP4-1 with NP4-2 (DTG-HiChIP-145,DTG-HiChIP-146 ; DTG-HiChIP-135,DTG-HiChIP-136) for neurons and UDP4-1 with UDP4-2 (DTG-HiChIP-137,DTG-HiChIP-138 ; DTG-HiChIP-143, DTG-HiChIP-144).  Will also concat UDP2-1 and UDP2-2 (DTG-HiChIP-139,DTG-HiChIP-140 ; DTG-HiChIP-147,DTG-HiChIP-148) since its from an earlier passage
 #Remember to load other modules as before when using xmen env if need to install something since this loads anaconda
+#Count number of pairs in a .pairs.gz file
+zcat file.pairs.gz | grep -v "#" | wc -l
 #Concatenated neurons number of reads 314005891
 #Concatenated undif number of reads 623477205
 #percent neurons/undif reads 0.50363652188
 #After subsampling ended up with 314033091
+#Command for subsampling (33 is seed for random number in this example)
+pairtools sample -s 33 --nproc-in 20 --nproc-out 20 -o subsample33.pairs.gz 0.50363652188 mapped.pairs.gz
+
 
 #Example for Neurons R1's  cat sampleA_S1_R1.fastq.gz  sampleB_S2_R1.fastq.gz > Condition1_R1.fastq.gz
 #NP4-1 with NP4-2 R1
@@ -132,7 +137,7 @@ make
 PATH=/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/bin/:/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/util:/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/bin/pairix:$PATH
 cd ..
 
-#13 Prep mapped pairs for indexing (last time had to use xmen env only) DO NOT USE gzip as this format will not be accepted by pairix also keep unziped copy to avoid issues when unzipping for downstream analysis, use -k option to keep original file, also to unzip and keep original use (for subsample) gunzip -c subsample.pairs.gz >subsample.pairs
+#13 Prep mapped pairs for indexing (last time had to use xmen env only) DO NOT USE gzip as this format will not be accepted by pairix also keep unziped copy to avoid issues when unzipping for downstream analysis, use -k option to keep original file, also to unzip and keep original use (for subsample) gunzip -c subsample33.pairs.gz >subsample33.pairs
 bgzip mapped.pairs
 
 #14 Index mapped.pairs (had to type out last time but could be due to previous error setting path without luhmes folder)
@@ -157,7 +162,7 @@ cooler zoomify --balance -p 16 submatrix_1kb.cool
 grep -v '#' mapped.pairs| awk -F"\t" '{print $1"\t"$2"\t"$3"\t"$6"\t"$4"\t"$5"\t"$7}' | gzip -c > hicpro_mapped.pairs.gz; echo "#17 pairs to HiCpro" | mail -s "#17 pairs to HiCpro" ojg333@gmail.com
 
 #For subsampled undif
-grep -v '#' subsample.pairs| awk -F"\t" '{print $1"\t"$2"\t"$3"\t"$6"\t"$4"\t"$5"\t"$7}' | gzip -c > hicpro_subsample.pairs.gz; echo "#17 pairs to HiCpro" | mail -s "#17 pairs to HiCpro" ojg333@gmail.com
+grep -v '#' subsample33.pairs| awk -F"\t" '{print $1"\t"$2"\t"$3"\t"$6"\t"$4"\t"$5"\t"$7}' | gzip -c > hicpro_subsample33.pairs.gz; echo "#17 pairs to HiCpro" | mail -s "#17 pairs to HiCpro" ojg333@gmail.com
 
 
 #Exit out of previos env and terminal session
@@ -170,7 +175,7 @@ source activate hicpro-3.1.0
 FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/neuronscat/config.txt; echo "#20 01 Neurons FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
 
 #Undif
-FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/merged/config.txt; echo "#20 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/merged/configsub33.txt; echo "#20 sub33 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
 
 #21 mapped.bam to bedgraph
 #Exit out of previos env and terminal session
@@ -355,3 +360,18 @@ source activate hicpro-3.1.0
 #Executed From (hicpro-3.1.0) fugon@epigenerate:/share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis$ 
 
 Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichip/9.1/lssc0-linux/Imp_Scripts/DiffAnalysisHiChIP.r --AllLoopList cat1_repl1.bed,cat1_repl2.bed,cat1_repl3.bed,cat1_repl4.bed,cat1_repl5.bed,cat2_repl1.bed,cat2_repl2.bed,cat2_repl3.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.10 --CovThr 25 --ChIPAlignFileList cat1_ChIPAlign.bam,cat2_ChIPAlign.bam --OutDir /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/outdir/ --CategoryList 'Undiff':'Neurons' --ReplicaCount 5:3 --ReplicaLabels1 "R1":"R2":"R3":"R4":"R5" --ReplicaLabels2 "R1":"R2":"R3" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
+
+
+#Make a bigwig over your region of interest (https://deeptools.readthedocs.io/en/develop/content/tools/bamCoverage.html)
+deepTools bamCoverage --ignoreDuplicates -bs 1 -p 20 -r chr15:24718748-26143749 -b mapped.PT.bam -o ASneurons.bigwig
+'''
+--ignoreDuplicates = do not include PCR dups (should be removed already, but its always better to be safe here)
+-bs = bin size here its 50bp - you can change to 1 for single nt, or 1000 for 1kb bins
+-p = # of processors to use
+-r = region - this is where you specify what part of you want to make a the bigwig around
+-b = input bam file
+-o = output bigwig file
+'''
+
+#To subsample bam to make bigwig for subsamples use
+samtools view -s 33.50363652188 -b mapped.PT.bam > subsample33.bam
