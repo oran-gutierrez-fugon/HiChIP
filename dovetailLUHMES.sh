@@ -89,6 +89,10 @@ samtools index mapped.PT.bam; echo "#7 samtools index bam file" | mail -s "#7 sa
 #corrected -view removed dash and input file namen to mapped.PT.bam
 samtools view -h -F 0x900 mapped.PT.bam | bedtools bamtobed -i stdin > prefix.primary.aln.bed
 
+#7.6 Call peaks using MACS3 (For neuronscat, instead of macs2 since macs2 was not working on ucdavis cluster and to keep same one used for undif)
+
+
+
 #7.6 Call peaks using MACS2 (Must be typed out not pasted or ran as snippet)
 module load macs2
 macs2 callpeak –t prefix.primary.aln.bed --nomodel -n prefix.macs2
@@ -176,6 +180,8 @@ FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/neuronscat/config.
 
 #Undif
 FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/merged/configsub33.txt; echo "#20 sub33 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
+
+FitHiChIP_HiCPro.sh -C configNP4-1pn.txt; echo "#20 sub33 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
 
 #21 mapped.bam to bedgraph
 #Exit out of previos env and terminal session
@@ -369,7 +375,7 @@ Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichi
 
 #catbalanced will need bedfile resulting from fithichip will perform with just NP4 and UDP4 replicates
 #MUST BE LAUNCHED FROM CATBALANCED DIRECTORY
-Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichip/9.1/lssc0-linux/Imp_Scripts/DiffAnalysisHiChIP.r --AllLoopList cat1_repl1.bed,cat2_repl1.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.01 --CovThr 25 --ChIPAlignFileList cat1_ChIPAlign.bam,cat2_ChIPAlign.bam --OutDir /share/lasallelab/Oran/dovetail/luhmes/catbalanced/DifAnalysis/outdir01/ --CategoryList 'Undiff':'Neurons' --ReplicaCount 1:1 --ReplicaLabels1 "R1" --ReplicaLabels2 "R1" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
+Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichip/9.1/lssc0-linux/Imp_Scripts/DiffAnalysisHiChIP.r --AllLoopList cat1_repl1.bed,cat2_repl1.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.01 --CovThr 25 --ChIPAlignFileList cat1_ChIPAlign.bam,cat2_ChIPAlign.bam --OutDir /share/lasallelab/Oran/dovetail/luhmes/catbalanced/DifAnalysis/outdir01wa89/ --CategoryList 'Undiff':'Neurons' --ReplicaCount 1:1 --ReplicaLabels1 "R1" --ReplicaLabels2 "R1" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
 
 
 
@@ -392,3 +398,8 @@ samtools view -s 33.50363652188 -b mapped.PT.bam > subsample33.bam
 
 #for catbalanced
 FitHiChIP_HiCPro.sh -C configNP4-01.txt; echo "#20 NP4FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
+
+catbalanced udp 1 and 3
+cat DTG-HiChIP-137_R1_001.fastq.gz DTG-HiChIP-138_R1_001.fastq.gz DTG-HiChIP-141_R1_001.fastq.gz DTG-HiChIP-142_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1-3_R1.fastq.gz
+
+cat DTG-HiChIP-137_R2_001.fastq.gz DTG-HiChIP-138_R2_001.fastq.gz DTG-HiChIP-141_R2_001.fastq.gz DTG-HiChIP-142_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1-3_R2.fastq.gz
