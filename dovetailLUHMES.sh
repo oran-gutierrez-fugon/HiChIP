@@ -28,6 +28,16 @@ cat DTG-HiChIP-137_R2_001.fastq.gz  DTG-HiChIP-138_R2_001.fastq.gz DTG-HiChIP-14
 cat DTG-HiChIP-139_R2_001.fastq.gz  DTG-HiChIP-140_R2_001.fastq.gz DTG-HiChIP-147_R2_001.fastq.gz DTG-HiChIP-148_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/UDP2-1-2_R2.fastq.gz
 
 
+#all UDP4s for 3 to 3 comparison in diff analysis
+#UDP4-1 with UDP4-2 and UDP4-3 R1
+cat DTG-HiChIP-137_R1_001.fastq.gz  DTG-HiChIP-138_R1_001.fastq.gz DTG-HiChIP-143_R1_001.fastq.gz DTG-HiChIP-144_R1_001.fastq.gz DTG-HiChIP-141_R1_001.fastq.gz DTG-HiChIP-142_R1_001.fastq.gz> /share/lasallelab/Oran/dovetail/luhmes/allUDP4sconcat/UDP4-1-2-3_R1.fastq.gz
+#UDP4-1 with UDP4-2 and UDP4-3 R2
+cat DTG-HiChIP-137_R2_001.fastq.gz  DTG-HiChIP-138_R2_001.fastq.gz DTG-HiChIP-143_R2_001.fastq.gz DTG-HiChIP-144_R2_001.fastq.gz DTG-HiChIP-141_R2_001.fastq.gz DTG-HiChIP-142_R2_001.fastq.gz> /share/lasallelab/Oran/dovetail/luhmes/allUDP4sconcat/UDP4-1-2-3_R2.fastq.gz
+
+
+
+
+
 #first copied hichip and pairix folders (not needed on UC Davis cluster when using module and env)
 #then all hg38 titled files to new directory "merged" and 'neuronscat"
 #must run each sample group in separate folders though since aligned.sam file would be overwritten
@@ -351,6 +361,7 @@ dev.off()
 #first use valid.pairs files as input to FitHiChiP 
 #then run differentail.analysis.script.sh on resulting
 #CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed file (Incorrect bed file, must be all contacts not just Q0.10
+#Don't just rename narrowpeak or try converting using bedtobam since file gets corrupted
 Can also use DiffBind with R studio as described https://hbctraining.github.io/Intro-to-ChIPseq/lessons/08_diffbind_differential_peaks.html
 
 
