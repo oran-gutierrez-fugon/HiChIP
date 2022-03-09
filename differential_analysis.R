@@ -5,6 +5,10 @@ library("GenomicInteractions")
 total_table <- read.table("/Volumes/DOVETAIL/DifAnalysis_outdir/MasterSheet_Undiff_Neurons_Loops.bed", sep = "\t", header = TRUE)
 head(total_table)
 
+#from terminal
+total_table <- read.table("/share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/outdir/MasterSheet_Undiff_Neurons_Loops.bed", sep = "\t", header = TRUE)
+head(total_table)
+
 label_ld_ld <- total_table %>% filter(Bin1_Label == "LD", Bin2_Label == "LD")
 head(label_ld_ld)
 label_nd_nd <- total_table %>% filter(Bin1_Label == "ND", Bin2_Label == "ND")
