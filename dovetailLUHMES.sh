@@ -109,6 +109,8 @@ samtools view -h -F 0x900 mapped.PT.bam | bedtools bamtobed -i stdin > prefix.pr
 #7.6 Call peaks using MACS2 (Must be typed out not pasted or ran as snippet)
 module load macs2
 macs2 callpeak –t prefix.primary.aln.bed --nomodel -n prefix.macs2
+for neuronscat
+macs3 callpeak -t neuronomod.primary.aln.bed --nomodel -n neuronomod.macs3
 
 #8 Library QC
 python3 ./HiChiP/get_qc.py -p stats.txt
