@@ -109,8 +109,6 @@ samtools view -h -F 0x900 mapped.PT.bam | bedtools bamtobed -i stdin > prefix.pr
 #7.6 Call peaks using MACS2 (Must be typed out not pasted or ran as snippet)
 module load macs2
 macs2 callpeak –t prefix.primary.aln.bed --nomodel -n prefix.macs2
-for neuronscat
-macs3 callpeak -t neuronomod.primary.aln.bed --nomodel -n neuronomod.macs3
 
 #8 Library QC
 python3 ./HiChiP/get_qc.py -p stats.txt
@@ -235,7 +233,7 @@ arc <- read.table("/Volumes/DOVETAIL/NP4-3_Merge_Nearby_Interactions/CTCF.DS.5kb
 arc$dist <- abs(arc$e2 - arc$s1)
 head(arc)
 
-#25 Set region to visualize (AS locus) hg19 chr15:24963895-26388896
+#25 Set region to visualize (AS locus) chr15:24963895-26388896 (hg19) chr15:24718748-26143749 (hg38)
 chrom = "chr15"
 chromstart = 24718748
 chromend = 26143749
@@ -428,3 +426,6 @@ catbalanced udp 1 and 3
 cat DTG-HiChIP-137_R1_001.fastq.gz DTG-HiChIP-138_R1_001.fastq.gz DTG-HiChIP-141_R1_001.fastq.gz DTG-HiChIP-142_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1-3_R1.fastq.gz
 
 cat DTG-HiChIP-137_R2_001.fastq.gz DTG-HiChIP-138_R2_001.fastq.gz DTG-HiChIP-141_R2_001.fastq.gz DTG-HiChIP-142_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1-3_R2.fastq.gz
+
+Epigenome browser session ID
+0c8583e0-a35f-11ec-8b8f-3558d3be2bb5
