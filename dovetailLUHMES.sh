@@ -52,7 +52,7 @@ cat DTG-HiChIP-137_R2_001.fastq.gz  DTG-HiChIP-138_R2_001.fastq.gz DTG-HiChIP-14
 neurons_R2.fastq.gz  undif_R1.fastq.gz
 
 #0 For lazy and no intermediate files
-bwa mem -5SP -T0 -t30 /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.fasta UDP2-1-2_R1.fastq.gz UDP2-1-2_R2.fastq.gz| pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 30 --nproc-out 30 --chroms-path /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.genome | pairtools sort --tmpdir=/share/lasallelab/Oran/dovetail/luhmes/catbalanced/temp/ --nproc 30|pairtools dedup --nproc-in 30 --nproc-out 30 --mark-dups --output-stats udp2stats.txt|pairtools split --nproc-in 30 --nproc-out 30 --output-pairs UDP2-1-2_mapped.pairs --output-sam -|samtools view -bS -@16 | samtools sort -@30 -o UDP2-1-2_mapped.PT.bam;samtools index UDP2-1-2_mapped.PT.bam
+bwa mem -5SP -T0 -t30 /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.fasta NP4-1-2_R1.fastq.gz NP4-1-2_R2.fastq.gz| pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 30 --nproc-out 30 --chroms-path /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.genome | pairtools sort --tmpdir=/share/lasallelab/Oran/dovetail/luhmes/catbalanced/temp/ --nproc 30|pairtools dedup --nproc-in 30 --nproc-out 30 --mark-dups --output-stats NP4-1and2stats.txt|pairtools split --nproc-in 30 --nproc-out 30 --output-pairs NP4-1and2_mapped.pairs --output-sam -|samtools view -bS -@16 | samtools sort -@30 -o NP4-1and2_mapped.PT.bam;samtools index NP4-1and2_mapped.PT.bam
 
 #1 bwa fastq to aligned.sam
 bwa mem -5SP -T0 -t50 hg38.fasta undif_R1.fastq.gz undif_R2.fastq.gz -o aligned.sam; echo "#1 bwa done" | mail -s "#1 bwa done" ojg333@gmail.com
@@ -109,6 +109,8 @@ samtools view -h -F 0x900 mapped.PT.bam | bedtools bamtobed -i stdin > prefix.pr
 #7.6 Call peaks using MACS2 (Must be typed out not pasted or ran as snippet)
 module load macs2
 macs2 callpeak –t prefix.primary.aln.bed --nomodel -n prefix.macs2
+for neuronscat
+macs3 callpeak -t neuronomod.primary.aln.bed --nomodel -n neuronomod.macs3
 
 #8 Library QC
 python3 ./HiChiP/get_qc.py -p stats.txt
@@ -233,7 +235,7 @@ arc <- read.table("/Volumes/DOVETAIL/NP4-3_Merge_Nearby_Interactions/CTCF.DS.5kb
 arc$dist <- abs(arc$e2 - arc$s1)
 head(arc)
 
-#25 Set region to visualize (AS locus) chr15:24963895-26388896 (hg19) chr15:24718748-26143749 (hg38)
+#25 Set region to visualize (AS locus) hg19 chr15:24963895-26388896
 chrom = "chr15"
 chromstart = 24718748
 chromend = 26143749
@@ -396,11 +398,11 @@ Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichi
 #just np4 1and2 and udp4 1and3
 Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichip/9.1/lssc0-linux/Imp_Scripts/DiffAnalysisHiChIP.r --AllLoopList cat1_repl1.bed,cat1_repl3.bed,cat2_repl1.bed,cat2_repl2.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.10 --CovThr 25 --ChIPAlignFileList cat1_ChIPAlign.bedgraph,cat2_ChIPAlign.bedgraph --OutDir /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/outdirnp-catbal1-3_bdgraph/ --CategoryList 'Undiff':'Neurons' --ReplicaCount 2:2 --ReplicaLabels1 "R1":"R3" --ReplicaLabels2 "R1":"R2" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
 
-#catbalanced will need bedfile resulting from fithichip will perform with just NP4 and UDP4 replicates
-#MUST BE LAUNCHED FROM CATBALANCED DIRECTORY
-Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichip/9.1/lssc0-linux/Imp_Scripts/DiffAnalysisHiChIP.r --AllLoopList cat1_repl1.bed,cat2_repl1.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.01 --CovThr 25 --ChIPAlignFileList cat1_ChIPAlign.bam,cat2_ChIPAlign.bam --OutDir /share/lasallelab/Oran/dovetail/luhmes/catbalanced/DifAnalysis/outdir01wa89/ --CategoryList 'Undiff':'Neurons' --ReplicaCount 1:1 --ReplicaLabels1 "R1" --ReplicaLabels2 "R1" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
+#NP4 vs UDP4 (no UDP2)
+Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichip/9.1/lssc0-linux/Imp_Scripts/DiffAnalysisHiChIP.r --AllLoopList cat1_repl1.bed,cat1_repl2.bed,cat1_repl3.bed,cat2_repl1.bed,cat2_repl2.bed,cat2_repl3.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.10 --CovThr 25 --ChIPAlignFileList cat1_ChIPAlign.bedgraph,cat2_ChIPAlign.bedgraph --OutDir /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/outdirnpNoUDP2/ --CategoryList 'Undiff':'Neurons' --ReplicaCount 3:3 --ReplicaLabels1 "R1":"R2":"R3" --ReplicaLabels2 "R1":"R2":"R3" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
 
-
+#NP4 1&2 vs NP2 1&2
+Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichip/9.1/lssc0-linux/Imp_Scripts/DiffAnalysisHiChIP.r --AllLoopList cat1_repl4.bed,cat1_repl5.bed,cat2_repl1.bed,cat2_repl2.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.10 --CovThr 25 --ChIPAlignFileList cat1_ChIPAlign.bedgraph,cat2_ChIPAlign.bedgraph --OutDir /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/outdirnpbNP4_1&2vUDP2_1&2/ --CategoryList 'Undiff':'Neurons' --ReplicaCount 2:2 --ReplicaLabels1 "R4":"R5" --ReplicaLabels2 "R1":"R2" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
 
 #Make a bigwig over your region of interest (https://deeptools.readthedocs.io/en/develop/content/tools/bamCoverage.html)
 deepTools bamCoverage --ignoreDuplicates -bs 1 -p 20 -r chr15:24718748-26143749 -b subsample.bam -o subsample.bigwig
@@ -426,6 +428,3 @@ catbalanced udp 1 and 3
 cat DTG-HiChIP-137_R1_001.fastq.gz DTG-HiChIP-138_R1_001.fastq.gz DTG-HiChIP-141_R1_001.fastq.gz DTG-HiChIP-142_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1-3_R1.fastq.gz
 
 cat DTG-HiChIP-137_R2_001.fastq.gz DTG-HiChIP-138_R2_001.fastq.gz DTG-HiChIP-141_R2_001.fastq.gz DTG-HiChIP-142_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1-3_R2.fastq.gz
-
-Epigenome browser session ID
-0c8583e0-a35f-11ec-8b8f-3558d3be2bb5
