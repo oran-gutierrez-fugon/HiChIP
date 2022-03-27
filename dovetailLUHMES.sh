@@ -14,21 +14,27 @@ pairtools sample -s 33 --nproc-in 20 --nproc-out 20 -o subsample33.pairs.gz 0.50
 
 #Example for Neurons R1's  cat sampleA_S1_R1.fastq.gz  sampleB_S2_R1.fastq.gz > Condition1_R1.fastq.gz
 #NP4-1 with NP4-2 R1
-cat DTG-HiChIP-145_R1_001.fastq.gz  DTG-HiChIP-146_R1_001.fastq.gz DTG-HiChIP-135_R1_001.fastq.gz DTG-HiChIP-136_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1-2_R1.fastq.gz
+cat DTG-HiChIP-145_R1_001.fastq.gz  DTG-HiChIP-146_R1_001.fastq.gz DTG-HiChIP-135_R1_001.fastq.gz DTG-HiChIP-136_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1and2/NP4-1-2_R1.fastq.gz
+#NP4-1 with NP4-2 R2
+cat DTG-HiChIP-145_R2_001.fastq.gz  DTG-HiChIP-146_R2_001.fastq.gz DTG-HiChIP-135_R2_001.fastq.gz DTG-HiChIP-136_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1and2/NP4-1-2_R2.fastq.gz
+#NP4-1 with NP4-3 R1
+cat DTG-HiChIP-145_R1_001.fastq.gz  DTG-HiChIP-146_R1_001.fastq.gz DTG-HiChIP-131_R1_001.fastq.gz  DTG-HiChIP-132_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1and3/NP4-1-3_R1.fastq.gz
+#NP4-1 with NP4-3 R2
+cat DTG-HiChIP-145_R2_001.fastq.gz  DTG-HiChIP-146_R2_001.fastq.gz DTG-HiChIP-131_R2_001.fastq.gz  DTG-HiChIP-132_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1and3/NP4-1-3_R2.fastq.gz
 #UDP4-1 with UDP4-2 R1
 cat DTG-HiChIP-137_R1_001.fastq.gz  DTG-HiChIP-138_R1_001.fastq.gz DTG-HiChIP-143_R1_001.fastq.gz DTG-HiChIP-144_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/UDP4-1-2_R1.fastq.gz
 #UDP2-1 with UDP2-2 R1
-cat DTG-HiChIP-139_R1_001.fastq.gz  DTG-HiChIP-140_R1_001.fastq.gz DTG-HiChIP-147_R1_001.fastq.gz DTG-HiChIP-148_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/UDP2-1-2_R1.fastq.gz
+cat DTG-HiChIP-139_R1_001.fastq.gz  DTG-HiChIP-140_R1_001.fastq.gz DTG-HiChIP-147_R1_001.fastq.gz DTG-HiChIP-148_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/UDP2/UDP2-1-2_R1.fastq.gz
+#UDP2-1 with UDP2-2 R2
+cat DTG-HiChIP-139_R2_001.fastq.gz  DTG-HiChIP-140_R2_001.fastq.gz DTG-HiChIP-147_R2_001.fastq.gz DTG-HiChIP-148_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/UDP2/UDP2-1-2_R2.fastq.gz
+
 #UDP4-1 with UDP4-3 R1
 cat DTG-HiChIP-137_R1_001.fastq.gz  DTG-HiChIP-138_R1_001.fastq.gz DTG-HiChIP-141_R1_001.fastq.gz DTG-HiChIP-142_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/UDP4-1-2_R1.fastq.gz
-#NP4-1 with NP4-2 R2
-cat DTG-HiChIP-145_R2_001.fastq.gz  DTG-HiChIP-146_R2_001.fastq.gz DTG-HiChIP-135_R2_001.fastq.gz DTG-HiChIP-136_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1-2_R2.fastq.gz
+
 #UDP4-1 with UDP4-2 R2
 cat DTG-HiChIP-137_R2_001.fastq.gz  DTG-HiChIP-138_R2_001.fastq.gz DTG-HiChIP-143_R2_001.fastq.gz DTG-HiChIP-144_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/UDP4-1-2_R2.fastq.gz
 #UDP4-1 with UDP4-3 R2
 cat DTG-HiChIP-137_R2_001.fastq.gz  DTG-HiChIP-138_R2_001.fastq.gz DTG-HiChIP-141_R2_001.fastq.gz DTG-HiChIP-141_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/UDP4-1and3_R2.fastq.gz
-#UDP2-1 with UDP2-2 R2
-cat DTG-HiChIP-139_R2_001.fastq.gz  DTG-HiChIP-140_R2_001.fastq.gz DTG-HiChIP-147_R2_001.fastq.gz DTG-HiChIP-148_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/UDP2-1-2_R2.fastq.gz
 
 
 #all UDP4s for 3 to 3 comparison in diff analysis
@@ -402,7 +408,7 @@ Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichi
 Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichip/9.1/lssc0-linux/Imp_Scripts/DiffAnalysisHiChIP.r --AllLoopList cat1_repl1.bed,cat1_repl2.bed,cat1_repl3.bed,cat2_repl1.bed,cat2_repl2.bed,cat2_repl3.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.10 --CovThr 25 --ChIPAlignFileList cat1_ChIPAlign.bedgraph,cat2_ChIPAlign.bedgraph --OutDir /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/outdirnpNoUDP2/ --CategoryList 'Undiff':'Neurons' --ReplicaCount 3:3 --ReplicaLabels1 "R1":"R2":"R3" --ReplicaLabels2 "R1":"R2":"R3" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
 
 #NP4 1&2 vs NP2 1&2
-Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichip/9.1/lssc0-linux/Imp_Scripts/DiffAnalysisHiChIP.r --AllLoopList cat1_repl4.bed,cat1_repl5.bed,cat2_repl1.bed,cat2_repl2.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.10 --CovThr 25 --ChIPAlignFileList cat1_ChIPAlign.bedgraph,cat2_ChIPAlign.bedgraph --OutDir /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/outdirnpbNP4_1&2vUDP2_1&2/ --CategoryList 'Undiff':'Neurons' --ReplicaCount 2:2 --ReplicaLabels1 "R4":"R5" --ReplicaLabels2 "R1":"R2" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
+Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichip/9.1/lssc0-linux/Imp_Scripts/DiffAnalysisHiChIP.r --AllLoopList cat1_repl4.bed,cat1_repl5.bed,cat2_repl1.bed,cat2_repl2.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.10 --CovThr 25 --ChIPAlignFileList cat1_ChIPAlign.bedgraph,cat2_ChIPAlign.bedgraph --OutDir /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/outNP4_1-2vUDP2_1-2/ --CategoryList 'Undiff':'Neurons' --ReplicaCount 2:2 --ReplicaLabels1 "R4":"R5" --ReplicaLabels2 "R1":"R2" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
 
 #Make a bigwig over your region of interest (https://deeptools.readthedocs.io/en/develop/content/tools/bamCoverage.html)
 deepTools bamCoverage --ignoreDuplicates -bs 1 -p 20 -r chr15:24718748-26143749 -b subsample.bam -o subsample.bigwig
