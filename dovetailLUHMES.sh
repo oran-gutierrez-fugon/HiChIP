@@ -247,7 +247,7 @@ chromstart = 24718748
 chromend = 26143749
 
 ####LUHMES concat interactions####
-#zoomed entire locus with interactions hg19 chr15:25365147-26195147
+#zoomed entire locus with interactions hg19 chr15:25365147-26195147		hg38 chr15:25120000-25950000
 chromstart = 25120000
 chromend = 25950000
 
