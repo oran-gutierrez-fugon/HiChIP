@@ -8,7 +8,7 @@ files <- dir(path = "/Users/fsociety/Library/CloudStorage/OneDrive-UCDavis/Docum
 
 #Set Region to visualize (Angelman locus 15q.11-q13)
 chrom = "chr15"
-chromstart = 25120000
+chromstart = 24750000
 chromend = 25950000
 
 for(f in files) {
@@ -23,7 +23,7 @@ for(f in files) {
 #Takes bed extension out of name
   new.file <- sub("\\..*", "",file)
 #Writes image as png with desired dimensions and uses file currently loaded for naming image
-  png(file=glue("/Users/fsociety/Library/CloudStorage/OneDrive-UCDavis/Documents/Dovetailoutput/Redos/intersectBed-10kbins01/noDups/{new.file}.png"),width = 1043,height = 516)
+  png(file=glue("/Users/fsociety/Library/CloudStorage/OneDrive-UCDavis/Documents/Dovetailoutput/Redos/intersectBed-10kbins01/noDups/2475-2595/{new.file}2475-2595.png"),width = 1043,height = 516)
 #Plot arcs with arc heights based on contact frequency
     plotBedpe(arc,
             chrom,
