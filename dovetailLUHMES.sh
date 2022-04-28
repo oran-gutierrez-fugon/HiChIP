@@ -58,7 +58,7 @@ cat DTG-HiChIP-137_R2_001.fastq.gz  DTG-HiChIP-138_R2_001.fastq.gz DTG-HiChIP-14
 neurons_R2.fastq.gz  undif_R1.fastq.gz
 
 #0 For lazy and no intermediate files
-bwa mem -5SP -T0 -t30 /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.fasta NP4-1-2_R1.fastq.gz NP4-1-2_R2.fastq.gz| pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 30 --nproc-out 30 --chroms-path /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.genome | pairtools sort --tmpdir=/share/lasallelab/Oran/dovetail/luhmes/catbalanced/temp/ --nproc 30|pairtools dedup --nproc-in 30 --nproc-out 30 --mark-dups --output-stats NP4-1and2stats.txt|pairtools split --nproc-in 30 --nproc-out 30 --output-pairs NP4-1and2_mapped.pairs --output-sam -|samtools view -bS -@16 | samtools sort -@30 -o NP4-1and2_mapped.PT.bam;samtools index NP4-1and2_mapped.PT.bam
+bwa mem -5SP -T0 -t30 /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.fasta NP4-1-2_R1.fastq.gz NP4-1-2_R2.fastq.gz| pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 30 --nproc-out 30 --chroms-path /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.genome | pairtools sort --tmpdir=/share/lasallelab/Oran/dovetail/luhmes/catbalanced/temp/ --nproc 30|pairtools dedup --nproc-in 30 --nproc-out 30 --mark-dups --output-stats NP4-1and2stats|pairtools split --nproc-in 30 --nproc-out 30 --output-pairs NP4-1and2_mapped.pairs --output-sam -|samtools view -bS -@16 | samtools sort -@30 -o NP4-1and2_mapped.PT.bam;samtools index NP4-1and2_mapped.PT.bam
 
 #1 bwa fastq to aligned.sam
 bwa mem -5SP -T0 -t50 hg38.fasta undif_R1.fastq.gz undif_R2.fastq.gz -o aligned.sam; echo "#1 bwa done" | mail -s "#1 bwa done" ojg333@gmail.com
@@ -90,7 +90,7 @@ pairtools sort --nproc 40 --tmpdir=/share/lasallelab/Oran/dovetail/luhmes/merged
 
 #4 Pairtools Deduplicate. Can run neurons and undif in parallel, 
 #lowered processors used to account for running in parallel
-pairtools dedup --nproc-in 30 --nproc-out 30 --mark-dups --output-stats stats.txt --output dedup.pairsam sorted.pairsam; echo "#4 Pairtools Deduplicate done" | mail -s "#4 Pairtools Deduplicate done" ojg333@gmail.com
+pairtools dedup --nproc-in 30 --nproc-out 30 --mark-dups --output-stats stats --output dedup.pairsam sorted.pairsam; echo "#4 Pairtools Deduplicate done" | mail -s "#4 Pairtools Deduplicate done" ojg333@gmail.com
 
 #5 Pairtools split to dedup.pairsam
 pairtools split --nproc-in 30 --nproc-out 30 --output-pairs mapped.pairs --output-sam unsorted.bam dedup.pairsam; echo "#5 Pairtools split to dedup.pairsam" | mail -s "#5 Pairtools split to dedup.pairsam" ojg333@gmail.com
@@ -119,7 +119,7 @@ for neuronscat
 macs3 callpeak -t neuronomod.primary.aln.bed --nomodel -n neuronomod.macs3
 
 #8 Library QC
-python3 ./HiChiP/get_qc.py -p stats.txt
+python3 ./HiChiP/get_qc.py -p stats
 
 #9 ChIP Enrichment Stats
 #Using narrowpeak bedfile format resulting from 1D peak call in 7.6
@@ -197,12 +197,12 @@ source activate hicpro-3.1.0
 
 #20 Runs FitHiChIP
 #Neurons
-FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/neuronscat/config.txt; echo "#20 01 Neurons FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/neuronscat/config; echo "#20 01 Neurons FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
 
 #Undif
-FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/merged/configsub33.txt; echo "#20 sub33 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/merged/configsub33; echo "#20 sub33 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
 
-FitHiChIP_HiCPro.sh -C configNP4-1pn.txt; echo "#20 sub33 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
+FitHiChIP_HiCPro.sh -C configNP4-1pn; echo "#20 sub33 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
 
 #21 mapped.bam to bedgraph
 #Exit out of previos env and terminal session
@@ -428,7 +428,7 @@ samtools view -s 33.50363652188 -b mapped.PT.bam > subsample33.bam
 /share/lasallelab/Oran/dovetail/luhmes/catbalanced$
 
 #for catbalanced
-FitHiChIP_HiCPro.sh -C configNP4-01.txt; echo "#20 NP4FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
+FitHiChIP_HiCPro.sh -C configNP4-01; echo "#20 NP4FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
 
 catbalanced udp 1 and 3
 cat DTG-HiChIP-137_R1_001.fastq.gz DTG-HiChIP-138_R1_001.fastq.gz DTG-HiChIP-141_R1_001.fastq.gz DTG-HiChIP-142_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/catbalanced/NP4-1-3_R1.fastq.gz
