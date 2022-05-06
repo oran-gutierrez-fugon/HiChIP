@@ -321,6 +321,14 @@ chrom = "chr22"
 chromstart = 49025000
 chromend = 49055000
 
+#Best AS region
+chr15:23476800-26895932
+#Best AS zoomed
+chr15:24761859-25954632
+#Best NHIP
+chr22:48999824-49079943
+#FITHICHIP ONLY ACCEPTS
+chr22:49000000-49100000
 
 #26 Inspect coverage plot
 plotBedgraph(cov,chrom,chromstart,chromend)
