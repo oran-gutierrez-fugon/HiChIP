@@ -1,0 +1,410 @@
+ssh fugon@epigenerate.genomecenter.ucdavis.edu		#logon to epigenerate cluster
+
+cd /share/lasallelab/Oran/dovetail
+
+
+. ~/.bashrc		
+conda activate 
+module load bwa
+module load deeptools
+module load samtools
+module load anaconda3
+module load R/4.0.1
+module load fithichip
+
+source activate hicpro-3.1.0
+
+#runs fithichip
+FitHiChIP_HiCPro.sh -C /config.txt
+
+conda activate /share/lasallelab/Oran/dovetail/oran	
+#Activate conda env #prefix shows conda environment now not base
+
+conda activate oj
+#for new env oj
+
+#Make the enrichment_stats.sh script executable:
+chmod +x ./share/lasallelab/Oran/dovetail/HiChiP/enrichment_stats.sh
+
+
+#shortcut for lazy pipe threw to indexed mapped bam file	MUST FIRST INDEX FILES (Prealignment section)#testset2 hg38
+bwa mem -5SP -T0 -t50 hg38.fa HiChiP_CTCF_2M_R1.fastq.gz HiChiP_CTCF_2M_R2.fastq.gz| pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 50 --nproc-out 50 --chroms-path hg38.genome | pairtools sort --nproc 50|pairtools dedup --nproc-in 50 --nproc-out 50 --mark-dups --output-stats stats.txt|pairtools split --nproc-in 50 --nproc-out 50 --output-pairs mapped.pairs --output-sam -|samtools view -bS -@50 | samtools sort -@50 -o mapped.PT.bam;samtools index mapped.PT.bam
+#for oj environment on cluster
+bwa mem -5SP -T0 -t16 /share/lasallelab/Oran/dovetail/refgenomes/GRCh38.fa /share/lasallelab/Oran/dovetail/oj/HiChiP_CTCF_2M_R1.fastq.gz /share/lasallelab/Oran/dovetail/oj/HiChiP_CTCF_2M_R2.fastq.gz| pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 50 --nproc-out 50 --chroms-path /share/lasallelab/Oran/dovetail/refgenomes/GRCh38.genome | pairtools sort --nproc 50|pairtools dedup --nproc-in 50 --nproc-out 50 --mark-dups --output-stats stats.txt|pairtools split --nproc-in 50 --nproc-out 50 --output-pairs mapped.pairs --output-sam -|samtools view -bS -@50 | samtools sort -@50 -o mapped.PT.bam;samtools index mapped.PT.bam
+
+#lazy shortcut for local install #no workie
+#bwa mem -5SP -T0 -t16 /Users/lasallelab/Dovetail/refgenomes/GRCh38.fa /Users/lasallelab/Dovetail/HiChiP_CTCF_2M_R1.fastq.gz /Users/lasallelab/Dovetail/HiChiP_CTCF_2M_R2.fastq.gz | pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 8 --nproc-out 8 --chroms-path /Users/lasallelab/Dovetail/refgenomes/GRCh38.genome | pairtools sort --tmpdir= --nproc 8 | pairtools dedup --nproc-in 8 --nproc-out 8 --mark-dups --output-stats /Users/lasallelab/Dovetail/stats.txt|pairtools split --nproc-in 8 --nproc-out 8 --output-pairs /Users/lasallelab/Dovetail/mapped.pairs --output-sam -|samtools view -bS -@8 | samtools sort -@8 -o /Users/lasallelab/Dovetail/mapped.PT.bam;samtools index /Users/lasallelab/Dovetail/mapped.PT.bam
+
+#useful commands:
+screen -S oran 	#do everything in screen and saves what you've done 
+screen -r oran	#Returns to last used screen, can use just screen -r if only one is present
+Ctrl A then Ctrl D
+screen -x screen name #with numbers #kills screen? or -XS?
+screen -ls
+Ctrl A then K #kills current screen
+Ctrl L #clear your entire command prompt:
+#	Ctrl A N? #clear screen
+pkill SCREEN #kills and deletes all screens
+htop -u fugon #to view processes for fugon
+htop #view all processes?
+top #to see a list of your running processes
+lscpu #shows number of cpus
+free -h #shows available memory
+echo $PATH #view directories in path
+echo $PYTHONPATH	#view python directories
+export PATH=""	#clears path	#To remove just a directory, copy and paste unto text editor and remove then paste back inside parenthesis and export PATH=""
+find /share/lasallelab/Oran -name SampleConsoleOutput.txt #Find file in folder
+
+#to add pysam and other python libs
+export PATH=/afs/genomecenter.ucdavis.edu/home/fugon/.conda/envs/xmen/lib/python3.7/site-packages/pysam:$PATH
+export PATH=/afs/genomecenter.ucdavis.edu/home/fugon/.conda/envs/xmen/lib/python3.7/site-packages/pandas:$PATH
+export PATH=/afs/genomecenter.ucdavis.edu/home/fugon/.conda/envs/xmen/lib/python3.7/site-packages/matplotlib:$PATH
+export PATH=/afs/genomecenter.ucdavis.edu/home/fugon/.conda/envs/xmen/lib/python3.7/site-packages:$PATH
+
+#problems with matplotlib too
+conda install pandas #if needed
+
+
+cd ~ #takes you to home directory
+ls -lad	#shows permissions
+ls -la  #shows permisions and size details
+du -h   #gives dataspace
+cp file.fna file.fa #change name or copy file -R to include all in folderca
+head -10 file.fna	#check if fasta?
+cat ~/.bashrc	#shows what was written to bashrc
+less ~/.bashrc #shows full bashrc
+mkdir /share/lasallelab/Oran/oldhome  #if moving file or folder must first create destination folder
+mv Data /share/lasallelab/Oran/oldhome/	#move folder (Data) to destination
+rm -r #command with the -r option for recursive deletion (when folder not empty)
+cat /etc/os-release #check os version
+apt list --installed #show installed programs
+apt list apache #list programs with specific criteria example here is for matching "apache"
+which #where program installed (followed by program name)
+pip list --outdated #show outdated python dependencies
+-- version #after program name to get version and see if installed
+pwd #shows current full PATH
+nano ~/.bashrc #change bash including shortcuts
+
+R
+quit()
+#check if program installed
+require("xtable") or rownames(installed.packages())
+packageVersion("xtable")
+
+
+
+
+Ctrl + L #clear your entire command prompt: Ctrl + L.
+control r #searches history when start ty
+control a #to go to beginning of line and control for end
+control c #to stop a program thats running like cntrl alt del in windows :P
+
+srun	#in dev partition	
+sbatch	#indicate how many cpus on cluster write script
+
+#conda environment stuff
+conda create -p oran	#create conda environment named oran prob need full path*****
+conda env list  	#list environments
+conda info --envs #List all discoverable environments
+conda env remove -p  /share/lasallelab/Oran/dovetail/HiC-Pro
+conda env remove --name oran
+	
+#where got GRCh37 not right one
+#wget https://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37.p13/seqs_for_alignment_pipelines/
+#wget https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh37_latest/refseq_identifiers/GRCh37_latest_genomic.fna.gz 	#to get ref genome hg37
+gunzip GRCh37_latest_genomic.fna.gz  #decompresses
+
+#make sure first indexed ref by: (only need to do once per genome)************
+samtools faidx hg38.fa
+cut -f1,2 hg38.fa.fai > hg38.genome
+bwa index hg38.fa
+
+#old lazy testset 1
+#bwa mem -5SP -T0 -t<cores> <ref.fa> <HiChiP.R1.fastq.gz> <HiChiP.R2.fastq.gz>| pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in <cores> --nproc-out <cores> --chroms-path <ref.genome> | pairtools sort --tmpdir=<full_path/to/tmpdir> --nproc <cores>|pairtools dedup --nproc-in <cores> --nproc-out <cores> --mark-dups --output-stats <stats.txt>|pairtools split --nproc-in <cores> --nproc-out <cores> --output-pairs <mapped.pairs> --output-sam -|samtools view -bS -@<cores> | samtools sort -@<cores> -o <mapped.PT.bam>;samtools index <mapped.PT.bam>
+#bwa mem -5SP -T0 -t16 hg38.fasta HiChiP_CTCF_2M_R1.fastq.gz HiChiP_CTCF_2M_R2.fastq.gz| pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 8 --nproc-out 8 --chroms-path hg38.genome | pairtools sort --tmpdir=/home/ubuntu/ebs/temp/ --nproc 16|pairtools dedup --nproc-in 8 --nproc-out 8 --mark-dups --output-stats stats.txt|pairtools split --nproc-in 8 --nproc-out 8 --output-pairs mapped.pairs --output-sam -|samtools view -bS -@16 | samtools sort -@16 -o mapped.PT.bam;samtools index mapped.PT.bam
+#bwa mem -5SP -T0 -t16 hg38.fasta HiChiP_CTCF_2M_R1.fastq.gz HiChiP_CTCF_2M_R2.fastq.gz| pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 8 --nproc-out 8 --chroms-path hg38.genome | pairtools sort --tmpdir=/home/ubuntu/ebs/temp/ --nproc 16|pairtools dedup --nproc-in 8 --nproc-out 8 --mark-dups --output-stats stats.txt|pairtools split --nproc-in 8 --nproc-out 8 --output-pairs mapped.pairs --output-sam -|samtools view -bS -@16 | samtools sort -@16 -o mapped.PT.bam;samtools index mapped.PT.bam
+
+#part by part instruction for non lazy :P
+#bwa mem -5SP -T0 -t<threads> <ref.fasta> <HiChiP_R1.fastq> <HiChiP_R2.fastq> -o <aligned.sam>
+#bwa mem -5SP -T0 -t16 hg38.fasta <(zcat file1.R1.fastq.gz file2.R1.fastq.gz file3.R1.fastq.gz) <(zcat file1.R2.fastq.gz file2.R2.fastq.gz file3.R2.fastq.gz) -o aligned.sam
+#bwa mem -5SP -T0 -t16 hg37.fna HiChiP_CTCF_2M_R1.fastq.gz HiChiP_CTCF_2M_R2.fastq.gz -o aligned.sam
+
+#sog
+bwa mem -5SP -T0 -t16 hg38.fasta HiChiP_CTCF_2M_R1.fastq.gz HiChiP_CTCF_2M_R2.fastq.gz -o aligned.sam
+
+#pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in <cores> --nproc-out <cores> --chroms-path <ref.genome> <aligned.sam> > <parsed.pairsam>
+#pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 8 --nproc-out 8 --chroms-path hg38.genome aligned.sam >  parsed.pairsam
+pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 50 --nproc-out 50 --chroms-path hg37.genome aligned.sam >  parsed.pairsam
+#sog
+pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 50 --nproc-out 50 --chroms-path hg38.genome aligned.sam >  parsed.pairsam
+#for local installation
+pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 8 --nproc-out 8 --chroms-path GRCh38.genome aligned.sam >  parsed.pairsam
+
+#pairtools sort --nproc <cores> --tmpdir=<path/to/tmpdir> <parsed.pairsam> > <sorted.pairsam>
+#pairtools sort --nproc 16 --tmpdir=/home/ubuntu/ebs/temp/  parsed.pairsam > sorted.pairsam
+pairtools sort --nproc 50 parsed.pairsam > sorted.pairsam
+#For local install
+pairtools sort --nproc 8 parsed.pairsam > sorted.pairsam
+
+#pairtools dedup --nproc-in <cores> --nproc-out <cores> --mark-dups --output-stats <stats.txt> --output <dedup.pairsam> <sorted.pairsam>
+#pairtools dedup --nproc-in 8 --nproc-out 8 --mark-dups --output-stats stats.txt --output dedup.pairsam sorted.pairsam
+pairtools dedup --nproc-in 50 --nproc-out 50 --mark-dups --output-stats stats.txt --output dedup.pairsam sorted.pairsam
+#for local installation
+pairtools dedup --nproc-in 8 --nproc-out 8 --mark-dups --output-stats stats.txt --output dedup.pairsam sorted.pairsam
+
+
+#pairtools split --nproc-in <cores> --nproc-out <cores> --output-pairs <mapped.pairs> --output-sam <unsorted.bam> <dedup.pairsam>
+#pairtools split --nproc-in 8 --nproc-out 8 --output-pairs mapped.pairs --output-sam unsorted.bam dedup.pairsam
+pairtools split --nproc-in 50 --nproc-out 50 --output-pairs mapped.pairs --output-sam unsorted.bam dedup.pairsam
+#for local installation
+pairtools split --nproc-in 8 --nproc-out 8 --output-pairs mapped.pairs --output-sam unsorted.bam dedup.pairsam
+
+
+#samtools sort -@<threads> -T <path/to/tmpdir/tempfile.bam>-o <mapped.PT.bam> <unsorted.bam>***
+#samtools sort -@16 -T /home/ubuntu/ebs/temp/temp.bam -o mapped.PT.bam unsorted.bam
+samtools sort -@50 -o mapped.PT.bam unsorted.bam
+
+#samtools index <mapped.PT.bam>
+samtools index mapped.PT.bam
+
+####Skip to here after lazy part#############################################################################################
+#*************************************************************************************************************
+#python3 ./HiChiP/get_qc.py -p <stats.txt>
+#python3 ./HiChiP/get_qc.py -p stats.txt
+python3 /share/lasallelab/Oran/dovetail/HiChiP/get_qc.py -p /share/lasallelab/Oran/dovetail/testset2/stats.txt
+#No-Dup Cis Read Pairs >= 1kb  must be above 20%
+
+#for oj env on cluster
+python3 /share/lasallelab/Oran/dovetail/oj/HiChiP/get_qc.py -p /share/lasallelab/Oran/dovetail/oj/stats.txt
+#sog
+python3 /share/lasallelab/Oran/dovetail/sog/HiChiP/get_qc.py -p /share/lasallelab/Oran/dovetail/sog/stats.txt
+#sog used
+python3 ./HiChiP/get_qc.py -p stats.txt
+#compare with stats here https://hichip.readthedocs.io/en/latest/library_qc.html
+#local
+python3 ./HiChiP/get_qc.py -p stats.txt
+
+
+#./HiChiP/enrichment_stats.sh -g <ref.genome> -b <mapped.PT.bam> -p <peaks.bed> -t <cores> -x <prefix>
+#./HiChiP/enrichment_stats.sh -g hg38.genome -b mapped.PT.bam -p ENCFF017XLW.bed -t 16 -x CTCF
+#/share/lasallelab/Oran/dovetail/HiChiP/enrichment_stats.sh -g /share/lasallelab/Oran/dovetail/testset/hg37.genome -b /share/lasallelab/Oran/dovetail/testset/mapped.PT.bam -p /share/lasallelab/Oran/dovetail/testset/ENCFF017XLW.bed -t 16 -x CTCF
+/share/lasallelab/Oran/dovetail/HiChiP/enrichment_stats.sh -g /share/lasallelab/Oran/dovetail/testset2/hg38.genome -b /share/lasallelab/Oran/dovetail/testset2/mapped.PT.bam -p /share/lasallelab/Oran/dovetail/testset2/ENCFF017XLW.bed -t 50 -x CTCF
+#for oj env in cluster
+/share/lasallelab/Oran/dovetail/oj/HiChiP/enrichment_stats.sh -g /share/lasallelab/Oran/dovetail/refgenomes/GRCh38.genome -b /share/lasallelab/Oran/dovetail/oj/mapped.PT.bam -p /share/lasallelab/Oran/dovetail/oj/ENCFF017XLW.bed -t 50 -x CTCF
+#sog
+./HiChiP/enrichment_stats.sh -g hg38.genome -b mapped.PT.bam -p ENCFF017XLW.bed -t 50 -x CTCF
+./HiChiP/enrichment_stats.sh -g /share/lasallelab/Oran/dovetail/refgenomes/GRCh38.genome -b /share/lasallelab/Oran/dovetail/oj/mapped.PT.bam -p /share/lasallelab/Oran/dovetail/oj/ENCFF017XLW.bed -t 50 -x CTCF
+
+
+
+#local
+/Users/lasallelab/Dovetail/HiChiP/enrichment_stats.sh -g /Users/lasallelab/Dovetail/refgenomes/GRCh38.genome -b /Users/lasallelab/Dovetail/mapped.PT.bam -p /Users/lasallelab/Dovetail/ENCFF017XLW.bed -t 8 -x CTCF
+
+nano CTCF_hichip_qc_metrics.txt
+
+
+#python3 plot_chip_enrichment.py -bam <mapped.PT.bam> -peaks <peaks.bed> -output <enrichment.png>	#or		
+#if narrow peak file use*****BEST
+#python3 ./HiChiP/plot_chip_enrichment.py -bam mapped.PT.bam -peaks ENCFF017XLW.bed -output enrichment.png	#uses narrow peak file?
+#python3 ./HiChiP/plot_chip_enrichment_bed.py -bam mapped.PT.bam -peaks peaks.bed -output enrichment.png	#uses bam
+python3 /share/lasallelab/Oran/dovetail/HiChiP/plot_chip_enrichment.py -bam mapped.PT.bam -peaks /share/lasallelab/Oran/dovetail/testset2/ENCFF017XLW.bed -output enrichment.png
+
+#oj environment
+python3 /share/lasallelab/Oran/dovetail/oj/HiChiP/plot_chip_enrichment.py -bam mapped.PT.bam -peaks /share/lasallelab/Oran/dovetail/oj/ENCFF017XLW.bed -output enrichment.png
+#sog
+python3 ./HiChiP/plot_chip_enrichment.py -bam mapped.PT.bam -peaks ENCFF017XLW.bed -output enrichment.png
+#local
+python3 /Users/lasallelab/Dovetail/HiChiP/plot_chip_enrichment.py -bam mapped.PT.bam -peaks /Users/lasallelab/Dovetail/ENCFF017XLW.bed -output enrichment.png
+
+#python3 /share/lasallelab/Oran/dovetail/HiChiP/plot_chip_enrichment_bed.py -bam mapped.PT.bam -peaks /share/lasallelab/Oran/dovetail/testset/peaks.bed -output enrichment2.png
+
+#cut -f1,2,3 ENCFF017XLW.bed > peaks.bed #from inside testset folder that contained ENCFF..bed file
+#python3 /share/lasallelab/Oran/dovetail/HiChiP/plot_chip_enrichment_bed.py -bam /share/lasallelab/Oran/dovetail/testset/mapped.PT.bam -peaks /share/lasallelab/Oran/dovetail/testset/peaks.bed -output enrichment2.png
+
+#should already have this
+#wget https://s3.amazonaws.com/hicfiles.tc4ga.com/public/juicer/juicer_tools_1.22.01.jar
+#mv juicer_tools_1.22.01.jar /share/lasallelab/Oran/dovetail/HiChiP/juicertools.jar
+
+#hg38
+java -Xmx400000m  -Djava.awt.headless=true -jar /share/lasallelab/Oran/dovetail/HiChiP/juicertools.jar pre -q 30 --threads 50 mapped.pairs contact_map.hic hg38.genome
+#java -Xmx400000m  -Djava.awt.headless=true -jar /share/lasallelab/Oran/dovetail/HiChiP/juicertools.jar pre [mising??] --threads 50 mapped.pairs contact_map.hic hg38.genome
+#*******************must be run in same directory as genome and contact map*********
+#java -Xmx<memory>  -Djava.awt.headless=true -jar <path_to_juicer_tools.jar> pre --threads <no_of_threads> <mapped.pairs> <contact-map.hic> <ref.genome>
+#java -Xmx48000m  -Djava.awt.headless=true -jar ./HiChiP/juicertools.jar pre --threads 16 mapped.pairs contact_map.hic hg38.genome
+#oj env
+java -Xmx400000m  -Djava.awt.headless=true -jar /share/lasallelab/Oran/dovetail/oj/HiChiP/juicertools.jar pre -q 30 --threads 50 mapped.pairs contact_map.hic GRCh38.genome
+#sog
+java -Xmx400000m  -Djava.awt.headless=true -jar ./HiChiP/juicertools.jar pre -q 30 --threads 50 mapped.pairs contact_map.hic hg38.genome
+
+#***********errors for oj env Could not find chromosome sizes file for: /Users/lasallelab/Dovetail/refgenomes/GRCh38.genome
+#local
+java -Xmx64000m  -Djava.awt.headless=true -jar /Users/lasallelab/Dovetail/HiChiP/juicertools.jar pre -q 30 --threads 8 mapped.pairs contact_map.hic GRCh38.genome
+
+
+#sog left off Generating cooler contact maps
+
+conda install -c conda-forge hdf5
+conda install h5py
+conda install -c conda-forge -c bioconda cooler
+#screws with numpy, scipy, pandas not sure if need libhdf5 instead
+git clone https://github.com/4dn-dcic/pairix
+cd pairix
+make
+PATH=/share/lasallelab/Oran/dovetail/sog/pairix/bin/:/share/lasallelab/Oran/dovetail/sog/pairix/util:/share/lasallelab/Oran/dovetail/sog/pairix/bin/pairix:$PATH
+cd ..
+bgzip mapped.pairs
+
+#indexes compressed m pairs
+pairix mapped.pairs.gz
+
+#cooler cload pairix -p <cores> <ref.genome>:<bin_size_in_bp> <mapped.pairs.gz> <matrix.cool>
+#cooler cload pairix -p 16 hg38.genome:1000 mapped.pairs.gz matrix_1kb.cool
+cooler cload pairix -p 50 hg38.genome:1000 mapped.pairs.gz matrix_1kb.cool
+
+#to make multizoom mcool file
+cooler zoomify --balance -p 50 matrix_1kb.cool
+
+#could not figuer out how to use and install hiGlass kept giving error
+#Specifications:
+#
+#  - higlass-python -> python[version='>=3.7,<3.8.0a0']
+#
+#Your python: python=3.9
+#
+#The following specifications were found to be incompatible with your system:
+#
+#  - feature:/linux-64::__glibc==2.23=0
+#  - python=3.9 -> libgcc-ng[version='>=7.5.0'] -> __glibc[version='>=2.17']
+#
+#Your installed version is: 2.23
+
+make sure have loaded correct version of R
+conda install -c conda-forge -c bioconda networkx
+R	#make sure have loaded correct version of R
+install.packages(c(“optparse”, “ggplot2”, “data.table”, “splines”, “fdrtool”, “parallel”, “tools”, “plyr”, “dplyr”))
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("GenomicRanges")
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("edgeR")
+
+conda install -c bioconda bowtie2
+
+conda install -c bioconda macs2 
+pip install bx-python
+conda install -c conda-forge -c bioconda bx-python
+#conda install -c bioconda bx-python
+
+
+Stuck here Oct 4
+
+
+#grep -v '#' <*.pairs>| awk -F"\t" '{print $1"\t"$2"\t"$3"\t"$6"\t"$4"\t"$5"\t"$7}' | gzip -c > <output.pairs.gz>
+gunzip mapped.pairs.gz #unzip again may want to leave backup with cp
+grep -v '#' mapped.pairs| awk -F"\t" '{print $1"\t"$2"\t"$3"\t"$6"\t"$4"\t"$5"\t"$7}' | gzip -c > hicpro_mapped.pairs.gz
+
+source activate hicpro-3.1.0
+
+#runs fithichip
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/sog/config.txt
+
+error Oct 10
+
+
+
+**********************sept27am
+
+
+#Dani 
+
+#First, make sure you have your local conda installation "loaded":
+#cd /share/lasallelab/Oran/dovetail
+#source /home/fugon/.bashrc
+
+#After these commands you should be able to see the prefix (base) before each line.
+
+#Then, generate an isolated conda environment with all dependencies:
+conda create -n hichip	#already done
+
+#conda activate hichip
+
+#The prefix should change from (base) to (hichip).
+
+#Now install dependencies through conda:
+conda install -c conda-forge -c bioconda bedtools bwa samtools deeptools pairtools
+
+#Install some additional python dependencies (some of them have already been installed and will prompt a "Requirement already satisfied" message):
+pip3 install pysam tabulate matplotlib pandas numpy scipy pyBigWig py2bit
+
+#Then download the custom HiChip scripts:
+git clone https://github.com/dovetail-genomics/HiChiP.git #had to run from inside dovetail/hichip directory
+
+#And make the enrichment_stats.sh script executable:
+chmod +x ./HiChiP/enrichment_stats.sh
+
+#Now you can go over the rest of the tutorial :)
+
+#Dani
+
+#how to check if python library is installed, ej: pysam
+python3
+import pysam
+exit()
+
+#FitHiChip singularity
+bash ./FitHiChIP_Singularity.sh -C /share/lasallelab/Oran/dovetail/sog/config.txt
+
+#conda env use for HiC-Pro
+conda env create -f /share/lasallelab/Oran/dovetail/sog/HiC-Pro/environment.yml -p /share/lasallelab/Oran/dovetail/sog/yjg
+conda activate --stack yjg
+
+#Builds singularity file for HiC-Pro
+sudo singularity build hicpro_latest_ubuntu.img /share/lasallelab/Oran/dovetail/sog/HiC-Pro/Singularity
+#can get prebuilt img
+https://zerkalo.curie.fr/partage/HiC-Pro/singularity_images/hicpro_latest_ubuntu.img
+#then
+singularity exec hicpro_latest_ubuntu.img HiC-Pro -h
+#or un from shell
+singularity shell hicpro_latest_ubuntu.img
+#to run singularity FitHiCHiP
+bash ./FitHiChIP_Singularity.sh -C /Your/Config/Files/Path
+
+man make #runs program in verbose
+less INSTALL #like nano  just view
+
+#refgenome
+wget https://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37.p13/seqs_for_alignment_pipelines/GCA_000001405.14_GRCh37.p13_no_alt_analysis_set.fna.gz
+wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz
+
+
+PATH=/share/lasallelab/Oran/dovetail/testset2/pairix/bin/:/share/lasallelab/Oran/dovetail/testset2/pairix/util:/share/lasallelab/Oran/dovetail/testset2/pairix/bin/pairix:$PATH
+
+conda env create -f /share/lasallelab/Oran/dovetail/HiC-Pro/HiC-Pro/environment.yml -p /share/lasallelab/Oran/dovetail/HiC-Pro
+conda activate /share/lasallelab/Oran/dovetail/HiC-Pro
+
+#PYTHONPATH
+/software/multiqc/1.10.1/lssc0-linux/lib/python3.8/site-packages:/software/macs2/2.2.5/lssc0-linux/lib/python3.6/site-packages:/software/deeptools/3.3.1/lssc0-linux/lib/python3.6/site-packages
+
+#XMEN PYTHONPATH
+/software/multiqc/1.10.1/lssc0-linux/lib/python3.8/site-packages:/software/macs2/2.2.5/lssc0-linux/lib/python3.6/site-packages:/software/deeptools/3.3.1/lssc0-linux/lib/python3.6/site-packages
+
+install.packages("optparse")
+
+#suffix to get emailed when job done
+; echo "You're process is done body" | mail -s "Process done ref" ojg333@gmail.com
+
+#where pysam is if get not found during CTCF portion add it to $PATH by
+
+Removed this from bash.rc when had cooler install issues and deleted xmen env
+
+#view amount of reads mapped to region of interest
+samtools view mapped.PT.bam chr15:25120000-25950000 | wc -l
+
+#to view reads aligned to entire genome (this case mapped.PT.bam file)
+samtools tview mapped.PT.bam
+then press g and enter coordinates as chr15:25120000
