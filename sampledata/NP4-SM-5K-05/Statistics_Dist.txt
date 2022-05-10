@@ -1,0 +1,6 @@
+
+ Total number of loops: 28292
+
+ Median distance of these loops: 
+
+ Mean distance of these loops: NA
