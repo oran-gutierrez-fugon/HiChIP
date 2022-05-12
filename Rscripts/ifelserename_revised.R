@@ -29,7 +29,7 @@ for(file in files) {
   part2 <- strsplit(all_parts[[1]][5], split = "_", fixed=T)
   newname <- paste(c(all_parts[[1]][1:3], part2[[1]][1]), collapse = "-")
   newname.bed <- paste(c(newname, "bed"), collapse = ".")
-#UDP4-SM-5K-05.bed
+# example : UDP4-SM-5K-05.bed
 
   #Writes image as png with desired dimensions and uses file currently loaded for naming image
   png(file=glue("{path}/{newname.bed}_test_test.png"),width = 1043,height = 516)
