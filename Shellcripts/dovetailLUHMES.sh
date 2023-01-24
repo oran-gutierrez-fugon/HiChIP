@@ -111,9 +111,25 @@ samtools view -h -F 0x900 mapped.PT.bam | bedtools bamtobed -i stdin > prefix.pr
 #7.6 Call peaks using MACS3 (For neuronscat, instead of macs2 since macs2 was not working on ucdavis cluster and to keep same one used for undif)
 
 #7.6 Call peaks using MACS2
+#load HiChiP module (if needed)
 module load macs2
-#load HiChiP module
+#Run macs2
 macs2 callpeak -t prefix.primary.aln.bed --nomodel -n prefix.macs2
+
+Vickys suggestion for output in bedgraph format (all same as before but --bdg changes to bedgraph)
+macs2 callpeak -t {input} -f BAM -n {sample name} --bdg --outdir {output directory}
+
+#NP4-1
+macs2 callpeak -t NP4-1.primary.aln.bed --nomodel -n NP4-1bg.macs2 --bdg
+macs2 callpeak -t NP4-2.primary.aln.bed --nomodel -n NP4-2bg.macs2 --bdg
+macs2 callpeak -t NP4-3.primary.aln.bed --nomodel -n NP4-3bg.macs2 --bdg
+macs2 callpeak -t UDP4-1.primary.aln.bed --nomodel -n UDP4-1bg.macs2 --bdg
+macs2 callpeak -t UDP4-2.primary.aln.bed --nomodel -n UDP4-2bg.macs2 --bdg
+macs2 callpeak -t UDP4-3.primary.aln.bed --nomodel -n UDP4-3bg.macs2 --bdg
+
+
+
+
 
 #8 Library QC
 python3 ./HiChiP/get_qc.py -p stats
@@ -375,7 +391,7 @@ dev.off()
 
 #For diff analysis (better than concatenating samples) 
 #first use valid.pairs files as input to FitHiChiP 
-#then run differentail.analysis.script.sh on resulting
+#then run differential.analysis.script.sh on resulting
 #CTCF.DS.5kb.interactions_FitHiC_Q0.10_MergeNearContacts.bed file (Incorrect bed file, must be all contacts not just Q0.10
 #Don't just rename narrowpeak or try converting using bedtobam since file gets corrupted
 Can also use DiffBind with R studio as described https://hbctraining.github.io/Intro-to-ChIPseq/lessons/08_diffbind_differential_peaks.html
@@ -393,14 +409,39 @@ module load fithichip
 source activate hicpro-3.1.0
 
 #Must not have any spaces between commas, also removed directory before bed and bam files, be careful to not have enter spaces either.
-#First converted narrowpeak to bed then bed to bedgraph (can probably go straight from bed to narrowpeak to bedgraph) Tried to convert bed to bam with bedtools but got weird characters when trying to view bam file afterwards
+#First converted narrowpeak to bed then bed to bedgraph (can probably go straight from narrowpeak to bedgraph) Tried to convert bed to bam with bedtools but got weird characters when trying to view bam file afterwards
 #narrowpeak to bed
 cut -f 1-6 macs_output.narrowPeak > macs_output.bed
 #bed to bedgraph
 awk '{ print $1"\t"$2"\t"$3"\t"$5 }' macs_output.bed > macs_output.bedgraph
 
-#Executed From (hicpro-3.1.0) fugon@epigenerate:/share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis$ 
+#Executed From (hicpro-3.1.0) fugon@epigenerate:/share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis$
 
+# Using narrowpeak made from each individual replicate
+awk '{ print $1"\t"$2"\t"$3"\t"$5 }' NP4-1_macs2_peaks.narrowPeak > NP4-1_macs2.bedgraph
+awk '{ print $1"\t"$2"\t"$3"\t"$5 }' NP4-2_macs2_peaks.narrowPeak > NP4-2.macs2.bedgraph
+awk '{ print $1"\t"$2"\t"$3"\t"$5 }' NP4-3_macs2_peaks.narrowPeak > NP4-3_macs2.bedgraph
+awk '{ print $1"\t"$2"\t"$3"\t"$5 }' UDP4-1_macs2_peaks.narrowPeak > UDP4-1_macs2.bedgraph
+awk '{ print $1"\t"$2"\t"$3"\t"$5 }' UDP4-2_macs2_peaks.narrowPeak > UDP4-2_macs2.bedgraph
+awk '{ print $1"\t"$2"\t"$3"\t"$5 }' UDP4-3_macs2_peaks.narrowPeak > UDP4-3_macs2.bedgraph
+# then
+Rscript /share/lasallelab/Oran/dovetail/luhmes/DifAnalysis/fithichip/9.1/lssc0-linux/Imp_Scripts/DiffAnalysisHiChIP.r --AllLoopList UDP4_1-SM-5K-05.bed,UDP4_2-SM-5K-05.bed,UDP4_3-SM-5K-05.bed,NP4_1-SM-5K-05.bed,NP4_2-SM-5K-05.bed,NP4_3-SM-5K-05.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.10 --CovThr 25 --ChIPAlignFileList UDP4-1_macs2.bedgraph,UDP4-2_macs2.bedgraph,UDP4-3_macs2.bedgraph,NP4-1_macs2.bedgraph,NP4-2.macs2.bedgraph,NP4-3_macs2.bedgraph --OutDir /share/lasallelab/Oran/dovetail/luhmes/DifAnalysis/IndivRef/ --CategoryList 'Undifferentiated':'Neurons' --ReplicaCount 3:3 --ReplicaLabels1 "UDP4-1":"UDP4-2":"UDP4-3" --ReplicaLabels2 "NP4-1":"NP4-2":"NP4-3" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
+
+Rscript /share/lasallelab/Oran/dovetail/luhmes/DifAnalysis/fithichip/9.1/lssc0-linux/Imp_Scripts/DiffAnalysisHiChIP.r --AllLoopList UDP4_1-SM-5K-05.bed,UDP4_2-SM-5K-05.bed,UDP4_3-SM-5K-05.bed,NP4_1-SM-5K-05.bed,NP4_2-SM-5K-05.bed,NP4_3-SM-5K-05.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.10 --CovThr 25 --ChIPAlignFileList UDP4-1bg.macs2_peaks.narrowPeak,UDP4-2bg.macs2_peaks.narrowPeak,UDP4-3bg.macs2_peaks.narrowPeak,NP4-1bg.macs2_peaks.narrowPeak,NP4-2bg.macs2_peaks.narrowPeak,NP4-3bg.macs2_peaks.narrowPeak --OutDir /share/lasallelab/Oran/dovetail/luhmes/DifAnalysis/IndivRef/bedgraphbg --CategoryList 'Undifferentiated':'Neurons' --ReplicaCount 3:3 --ReplicaLabels1 "UDP4-1":"UDP4-2":"UDP4-3" --ReplicaLabels2 "NP4-1":"NP4-2":"NP4-3" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
+
+
+
+
+Kept getting the same error
+ ===>>> GroupDistrVec : Neurons  Error in lfproc(x, y, weights = weights, cens = cens, base = base, geth = geth,  : 
+  newsplit: out of vertex space
+Calls: ApplyEdgeR ... estimateDisp.default -> WLEB -> locfitByCol -> fitted -> locfit -> lfproc
+In addition: There were 40 warnings (use warnings() to see them)
+
+
+
+
+# Original script
 Rscript /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/fithichip/9.1/lssc0-linux/Imp_Scripts/DiffAnalysisHiChIP.r --AllLoopList cat1_repl1.bed,cat1_repl2.bed,cat1_repl3.bed,cat1_repl4.bed,cat1_repl5.bed,cat2_repl1.bed,cat2_repl2.bed,cat2_repl3.bed --ChrSizeFile /share/lasallelab/Oran/dovetail/refgenomes/hg38.chrom.sizes --FDRThr 0.10 --CovThr 25 --ChIPAlignFileList cat1_ChIPAlign.bedgraph,cat2_ChIPAlign.bedgraph --OutDir /share/lasallelab/Oran/dovetail/luhmes/bedintersect/DifAnalysis/outdirnpbgraph/ --CategoryList 'Undiff':'Neurons' --ReplicaCount 5:3 --ReplicaLabels1 "R1":"R2":"R3":"R4":"R5" --ReplicaLabels2 "R1":"R2":"R3" --FoldChangeThr 2 --DiffFDRThr 0.05 --bcv 0.4
 
 #just np4 1and2 and udp4 1and2
