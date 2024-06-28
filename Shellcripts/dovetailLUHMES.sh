@@ -2,12 +2,13 @@
 #Concatenated all 5 Undif and all 3 dif
 #Will also concatenate just NP4-1 with NP4-2 (DTG-HiChIP-145,DTG-HiChIP-146 ; DTG-HiChIP-135,DTG-HiChIP-136) for neurons and UDP4-1 with UDP4-2 (DTG-HiChIP-137,DTG-HiChIP-138 ; DTG-HiChIP-143, DTG-HiChIP-144).  Will also concat UDP2-1 and UDP2-2 (DTG-HiChIP-139,DTG-HiChIP-140 ; DTG-HiChIP-147,DTG-HiChIP-148) since its from an earlier passage
 #Remember to load other modules as before when using xmen env if need to install something since this loads anaconda
+mapped.pairs.gz
 #Count number of pairs in a .pairs.gz file
-zcat file.pairs.gz | grep -v "#" | wc -l
+zcat mapped.pairs.gz | grep -v "#" | wc -l
 #Concatenated neurons number of reads 314005891
 #Concatenated undif number of reads 623477205
 #percent neurons/undif reads 0.50363652188
-#After subsampling ended up with 314033091
+#After subsampling undif ended up with 314033091
 #Command for subsampling (33 is seed for random number in this example)
 pairtools sample -s 33 --nproc-in 20 --nproc-out 20 -o subsample33.pairs.gz 0.50363652188 mapped.pairs.gz
 
@@ -43,8 +44,11 @@ cat DTG-HiChIP-137_R1_001.fastq.gz  DTG-HiChIP-138_R1_001.fastq.gz DTG-HiChIP-14
 #UDP4-1 with UDP4-2 and UDP4-3 R2
 cat DTG-HiChIP-137_R2_001.fastq.gz  DTG-HiChIP-138_R2_001.fastq.gz DTG-HiChIP-143_R2_001.fastq.gz DTG-HiChIP-144_R2_001.fastq.gz DTG-HiChIP-141_R2_001.fastq.gz DTG-HiChIP-142_R2_001.fastq.gz> /share/lasallelab/Oran/dovetail/luhmes/allUDP4sconcat/UDP4-1-2-3_R2.fastq.gz
 
+#All neurons R1
+cat DTG-HiChIP-145_R1_001.fastq.gz  DTG-HiChIP-146_R1_001.fastq.gz DTG-HiChIP-135_R1_001.fastq.gz DTG-HiChIP-136_R1_001.fastq.gz DTG-HiChIP-131_R1_001.fastq.gz DTG-HiChIP-132_R1_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/allelectcf/neurons_R1.fastq.gz
 
-
+#All neurons R2
+cat DTG-HiChIP-145_R2_001.fastq.gz  DTG-HiChIP-146_R2_001.fastq.gz DTG-HiChIP-135_R2_001.fastq.gz DTG-HiChIP-136_R2_001.fastq.gz DTG-HiChIP-131_R2_001.fastq.gz DTG-HiChIP-132_R2_001.fastq.gz > /share/lasallelab/Oran/dovetail/luhmes/allelectcf/neurons_R2.fastq.gz
 
 
 #first copied hichip and pairix folders (not needed on UC Davis cluster when using module and env)
@@ -61,6 +65,7 @@ neurons_R2.fastq.gz  undif_R1.fastq.gz
 bwa mem -5SP -T0 -t30 /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.fasta NP4-1-2_R1.fastq.gz NP4-1-2_R2.fastq.gz| pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 30 --nproc-out 30 --chroms-path /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.genome | pairtools sort --tmpdir=/share/lasallelab/Oran/dovetail/luhmes/catbalanced/temp/ --nproc 30|pairtools dedup --nproc-in 30 --nproc-out 30 --mark-dups --output-stats NP4-1and2stats|pairtools split --nproc-in 30 --nproc-out 30 --output-pairs NP4-1and2_mapped.pairs --output-sam -|samtools view -bS -@16 | samtools sort -@30 -o NP4-1and2_mapped.PT.bam;samtools index NP4-1and2_mapped.PT.bam
 
 #1 bwa fastq to aligned.sam
+#for undif
 bwa mem -5SP -T0 -t50 hg38.fasta undif_R1.fastq.gz undif_R2.fastq.gz -o aligned.sam; echo "#1 bwa done" | mail -s "#1 bwa done" ojg333@gmail.com
 #for neurons from neuronscat folder
 bwa mem -5SP -T0 -t50 hg38.fasta neurons_R1.fastq.gz neurons_R2.fastq.gz -o aligned.sam; echo "#1 bwa done" | mail -s "#1 bwa done" ojg333@gmail.com
@@ -68,10 +73,40 @@ bwa mem -5SP -T0 -t50 hg38.fasta neurons_R1.fastq.gz neurons_R2.fastq.gz -o alig
 bwa mem -5SP -T0 -t50 /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.fasta NP4-1-2_R1.fastq.gz NP4-1-2_R2.fastq.gz -o NP4aligned.sam; echo "#1 bwa done" | mail -s "#1 bwa done" ojg333@gmail.com
 #For UDP4
 bwa mem -5SP -T0 -t50 /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.fasta UDP4-1-2_R1.fastq.gz UDP4-1-2_R2.fastq.gz -o UDP4aligned.sam; echo "#1 UDP4 bwa done" | mail -s "#1 UDP4 bwa done" ojg333@gmail.com
+#For allele specific paternal (neurons) from /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/hg19.NP4-3-hap2.fa, may need to index reference, will have to do for pat dif, undif then mat dif, undif in that order for downsampling 
+bwa index /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/hg19.NP4-3.hap2.fa
+bwa mem -5SP -T0 -t50 /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/hg19.NP4-3.hap2.fa /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/neurons_R1.fastq.gz /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/neurons_R2.fastq.gz -o /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/aligned.sam
+#For allele specific paternal undif (same ref but undif fastq files)
+bwa mem -5SP -T0 -t50 /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/hg19.NP4-3.hap2.fa /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/undif_R1.fastq.gz /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/undif_R2.fastq.gz -o /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/aligned.sam
+#For maternal allele specific neurons
+bwa index /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/hg19.NP4-3.hap1.fa
+bwa mem -5SP -T0 -t50 /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/hg19.NP4-3.hap1.fa /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/neurons_R1.fastq.gz /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/neurons_R2.fastq.gz -o /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/mat_aligned.sam
+#For maternal undif
+bwa mem -5SP -T0 -t30 /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/hg19.NP4-3.hap1.fa /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/undif_R1.fastq.gz /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/undif_R2.fastq.gz -o /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/maternal/mat_aligned.sam
+
+#For custom genome had to make .genome file from custom ref .fai file
+# Generate the .genome file from the existing .fai file
+# Pat specific generate the .genome file from the existing .fai file
+cut -f1,2 /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/hg19.UDP4-3.hap2.fa.fai > /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/neuronpat.genome
+# Mat specific Neurons to generate the .genome file from the existing .fai file
+cut -f1,2 /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/hg19.NP4-3.hap1.fa.fai > /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/neuronmat.genome
+# Pat specific Use the generated .genome file with pairtools
+pairtools parse --chroms-path /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/neuronpat.genome -o /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/aligned_parsed.pairs /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/aligned.sam
+# Mat specific Use the generated .genome file with pairtools
+pairtools parse --chroms-path /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/neuronmat.genome -o /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/mat_aligned_parsed.pairs /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/mat_aligned.sam
+# Mat Undif specific Use the generated .genome file with pairtools
+pairtools parse --chroms-path /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/neuronmat.genome -o /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/maternal/mat_aligned_parsed.pairs /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/maternal/mat_aligned.sam
+
+
 
 
 #2 Pairtools aligned sam to parsed.pairsam (not present in UCD)
-pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 50 --nproc-out 50 --chroms-path hg38.genome aligned.sam >  parsed.pairsam; echo "#2 pairtools done" | mail -s "#2 pairtools done" ojg333@gmail.com
+#paternal allele specific undif
+pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 50 --nproc-out 50 --chroms-path /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/neuronpat.genome /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/aligned.sam >  /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/parsed.pairsam; echo "#2 pairtools done" | mail -s "#2 pairtools done" ojg333@gmail.com
+#maternal allele specific neurons
+pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 50 --nproc-out 50 --chroms-path /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/neuronmat.genome /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/mat_aligned.sam >  /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/mat_parsed.pairsam
+#maternal allele specific Undif
+pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 50 --nproc-out 50 --chroms-path /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/neuronmat.genome /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/maternal/mat_aligned.sam >  /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/maternal/mat_parsed.pairsam
 #For NP4
 pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 30 --nproc-out 30 --chroms-path /share/lasallelab/Oran/dovetail/luhmes/merged/hg38.genome aligned.sam >  parsed.pairsam; echo "#2 NP4 pairtools done" | mail -s "#2 pairtools done" ojg333@gmail.com
 #FOR UDP4
@@ -82,6 +117,10 @@ pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --
 #Must create temp/ directory or this step will error out! 
 #Don't try running both neurons and dif at the same time or will error out.
 #Don't run on screen, will also cause memory issues on UCDavis Cluster
+#For allele specific paternal neurons or undif (from neurons/ or undif/ folders)
+pairtools sort --nproc 38 --tmpdir=/share/lasallelab/Oran/dovetail/luhmes/neuronscat/temp/ parsed.pairsam > sorted.pairsam
+#For allele specific maternal neurons or undif (from neurons/maternal or undif/maternal folders)
+pairtools sort --nproc 25 --tmpdir=/share/lasallelab/Oran/dovetail/luhmes/neuronscat/temp/ mat_parsed.pairsam > mat_sorted.pairsam
 #FOR NEURONS
 pairtools sort --nproc 40 --tmpdir=/share/lasallelab/Oran/dovetail/luhmes/neuronscat/temp/ parsed.pairsam > sorted.pairsam; echo "#3 NEURON sorting pairsam done" | mail -s "#3 sorting pairsam done" ojg333@gmail.com
 
@@ -91,18 +130,48 @@ pairtools sort --nproc 40 --tmpdir=/share/lasallelab/Oran/dovetail/luhmes/merged
 #4 Pairtools Deduplicate. Can run neurons and undif in parallel, 
 #lowered processors used to account for running in parallel
 pairtools dedup --nproc-in 30 --nproc-out 30 --mark-dups --output-stats stats --output dedup.pairsam sorted.pairsam; echo "#4 Pairtools Deduplicate done" | mail -s "#4 Pairtools Deduplicate done" ojg333@gmail.com
+#For allele specific one at a time (make sure you are in sorted.pairsam directory)
+pairtools dedup --nproc-in 40 --nproc-out 40 --mark-dups --output-stats stats --output dedup.pairsam sorted.pairsam
+#For maternal neurons
+pairtools dedup --nproc-in 45 --nproc-out 45 --mark-dups --output-stats stats --output mat_dedup.pairsam mat_sorted.pairsam
 
 #5 Pairtools split to dedup.pairsam
-pairtools split --nproc-in 30 --nproc-out 30 --output-pairs mapped.pairs --output-sam unsorted.bam dedup.pairsam; echo "#5 Pairtools split to dedup.pairsam" | mail -s "#5 Pairtools split to dedup.pairsam" ojg333@gmail.com
+pairtools split --nproc-in 40 --nproc-out 40 --output-pairs mat_mapped.pairs --output-sam mat_unsorted.bam mat_dedup.pairsam
+#Mat skip from here to 13
+
+#SUBSAMPLE AT THIS STEP (SEE TOP)
+#For allele specific neurons mat
+bgzip -c mat_mapped.pairs > mat_mapped.pairs.gz
+
+#Count number of pairs in a .pairs.gz file
+zcat mapped.pairs.gz | grep -v "#" | wc -l
+maternal
+#Count number of pairs in a .pairs.gz file
+zcat mat_mapped.pairs.gz | grep -v "#" | wc -l
+
+#Need to process Neurons and Undif to this point first so can see which mapped.pairs.gz file has the most reads and calculate downsampling, for example
+#Concatenated neurons number of reads 314005891(OLD)313193582 mat=313193417
+#Concatenated undif number of reads 623477205(OLD)362809900 mat=
+#percent neurons/undif reads 0.50363652188(OLD)0.8632443105879966
+#After subsampling undif ended up with 314033091(OLD)
+#Command for subsampling (33 is seed for random number in this example)
+pairtools sample -s 33 --nproc-in 20 --nproc-out 20 -o subsample33.pairs.gz 0.50363652188 mapped.pairs.gz
+#For allele specific paternal
+pairtools sample -s 33 --nproc-in 40 --nproc-out 40 -o subsample33.pairs.gz 0.8632443105879966 mapped.pairs.gz
+#For allele specific maternal
+pairtools sample -s 33 --nproc-in 40 --nproc-out 40 -o subsample33.pairs.gz 0.8632443105879966 mat_mapped.pairs.gz
 
 #6 Generating the final bam file with Samtools sort
 samtools sort -@30 -o mapped.PT.bam unsorted.bam; echo "#6 Samtools sort" | mail -s "#6 Samtools sort" ojg333@gmail.com
+# For allele specific
+samtools sort -@40 -o mapped.PT.bam unsorted.bam
 
 #7 samtools index bam file
 samtools index mapped.PT.bam; echo "#7 samtools index bam file" | mail -s "#7 samtools index bam file" ojg333@gmail.com
 
+
 #Calling 1D peaks from concatenated control samples (undifferentiated LUHMES)
-#Only needed since no gold standard ENCODE ChIP-seq data for LUHMES cells
+#Only needed since no gold standard ENCODE ChIP-seq data for LUHMES cells, may be skipped since if redoing and using same data
 
 #7.5 Select the primary alignment in the bam file and convert to bed format
 #corrected -view removed dash and input file namen to mapped.PT.bam
@@ -140,6 +209,8 @@ python3 ./HiChiP/get_qc.py -p stats
 module load hichip
 source activate hichip-cb6872b
 enrichment_stats.sh -g hg38.genome -b mapped.PT.bam -p /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs2_peaks.narrowPeak -t 30 -x CTCF; echo "#9 ChIP Enrichment Stats" | mail -s "#9 ChIP Enrichment Stats" ojg333@gmail.com
+#For paternal allele specific reference genome
+enrichment_stats.sh -g /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/swap_reference/hg19.NP4-3.hap2.fa -b mapped.PT.bam -p /share/lasallelab/Oran/dovetail/luhmes/merged/prefix.macs2_peaks.narrowPeak -t 30 -x CTCF; echo "#9 ChIP Enrichment Stats" | mail -s "#9 ChIP Enrichment Stats" ojg333@gmail.com
 
 #10 Plot ChIP enrichment
 #If needed reload module and env
@@ -167,7 +238,7 @@ java -Xmx240000m  -Djava.awt.headless=true -jar /share/lasallelab/Oran/dovetail/
 #For subsampled pair file subsample.pairs
 java -Xmx48000m  -Djava.awt.headless=true -jar ./HiChiP/juicertools.jar pre --threads 16 subsample33.pairs sub33contact_map.hic hg38.genome; echo "#11 SUB33.pairs to .hic" | mail -s "#11 .pairs to .hic" ojg333@gmail.com
 
-#12 Install pairix and set path
+#12 Install pairix and set path. Can skip if using oj env
 git clone https://github.com/4dn-dcic/pairix
 cd pairix
 make
@@ -175,13 +246,19 @@ make
 PATH=/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/bin/:/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/util:/share/lasallelab/Oran/dovetail/luhmes/merged/pairix/bin/pairix:$PATH
 cd ..
 
-#13 Prep mapped pairs for indexing (last time had to use xmen env only) DO NOT USE gzip as this format will not be accepted by pairix also keep unziped copy to avoid issues when unzipping for downstream analysis, use -k option to keep original file, also to unzip and keep original use (for subsample) gunzip -c subsample33.pairs.gz >subsample33.pairs
+#13 Prep mapped pairs for indexing (last time had to use xmen env only) DO NOT USE gzip as this format will not be accepted by pairix also keep unziped copy to avoid issues when unzipping for downstream analysis, use -k option to keep original file, also to unzip and keep original use (for subsample) gunzip -c subsample33.pairs.gz >subsample33.pairs.  Can also just bgzip and keep original with bgzip -c mapped.pairs > mapped.pairs.gz
+#Will have already done this if used downsampling
+#in oj env
 bgzip mapped.pairs
-
-#14 Index mapped.pairs (had to type out last time but could be due to previous error setting path without luhmes folder)
+#allele mat
+bgzip -c mat_mapped.pairs > mat_mapped.pairs.gz
+#14 Index mapped.pairs (had to type out last time but could be due to previous error setting path without luhmes folder) (Can start oj env which already has pairix installed)
 pairix mapped.pairs.gz
+#allele mat
+pairix mat_mapped.pairs.gz
+#Skip to 17 
 
-#15 Single Resolution Contact Matrix
+#15 Single Resolution Contact Matrix (Can skip this if allele specific and come back to it if have time)
 #Use UC Davis env created using
 module load cooler
 source activate cooler-0.8.11
@@ -198,9 +275,11 @@ cooler zoomify --balance -p 16 sub33matrix_1kb.cool
 #17 Filtered pairs to HiCpro pairs
 #Can skip to here if dont need hic or cooler contact matrix
 grep -v '#' mapped.pairs| awk -F"\t" '{print $1"\t"$2"\t"$3"\t"$6"\t"$4"\t"$5"\t"$7}' | gzip -c > hicpro_mapped.pairs.gz; echo "#17 pairs to HiCpro" | mail -s "#17 pairs to HiCpro" ojg333@gmail.com
+#For mat neurons
+grep -v '#' mat_mapped.pairs| awk -F"\t" '{print $1"\t"$2"\t"$3"\t"$6"\t"$4"\t"$5"\t"$7}' | gzip -c > mat_hicpro_mapped.pairs.gz
 
 #For subsampled undif
-grep -v '#' subsample33.pairs| awk -F"\t" '{print $1"\t"$2"\t"$3"\t"$6"\t"$4"\t"$5"\t"$7}' | gzip -c > hicpro_subsample33.pairs.gz; echo "#17 pairs to HiCpro" | mail -s "#17 pairs to HiCpro" ojg333@gmail.com
+grep -v '#' subsample33.pairs| awk -F"\t" '{print $1"\t"$2"\t"$3"\t"$6"\t"$4"\t"$5"\t"$7}' | gzip -c > hicpro_subsample33.pairs.gz
 
 
 #Exit out of previos env and terminal session
@@ -211,11 +290,19 @@ source activate hicpro-3.1.0
 #20 Runs FitHiChIP
 #Neurons
 FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/neuronscat/config; echo "#20 01 Neurons FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
+#Paternal allele Neurons
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/NP4s-SM-5k-05/config-NP4s-5k-05-SM.txt
+#Paternal allele Undif AA 0.1 FDR
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/UDP4-AA-5K-10/config-UDP4s-5k-10-AA.txt
+#Mat Neurons Undif AA 0.1 FDR
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/Mat_NP4s-AA-5k-10/config-Mat_NP4s-5k-10-AA.txt
 
 #Undif
 FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/merged/configsub33; echo "#20 sub33 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
-
+#?
 FitHiChIP_HiCPro.sh -C configNP4-1pn; echo "#20 sub33 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
+
+
 
 #21 mapped.bam to bedgraph
 #Exit out of previos env and terminal session
@@ -469,7 +556,7 @@ deepTools bamCoverage --ignoreDuplicates -bs 1 -p 20 -r chr15:24718748-26143749 
 
 #To subsample bam to make bigwig for subsamples use
 samtools view -s 33.50363652188 -b mapped.PT.bam > subsample33.bam
-
+samtools view -s 33.8632443105879966 -b mapped.PT.bam > subsample33.bam
 
 /share/lasallelab/Oran/dovetail/luhmes/catbalanced$
 
