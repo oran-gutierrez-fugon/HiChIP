@@ -133,10 +133,10 @@ pairtools dedup --nproc-in 30 --nproc-out 30 --mark-dups --output-stats stats --
 #For allele specific one at a time (make sure you are in sorted.pairsam directory)
 pairtools dedup --nproc-in 40 --nproc-out 40 --mark-dups --output-stats stats --output dedup.pairsam sorted.pairsam
 #For maternal neurons
-pairtools dedup --nproc-in 45 --nproc-out 45 --mark-dups --output-stats stats --output mat_dedup.pairsam mat_sorted.pairsam
+pairtools dedup --nproc-in 25 --nproc-out 25 --mark-dups --output-stats stats --output mat_dedup.pairsam mat_sorted.pairsam
 
 #5 Pairtools split to dedup.pairsam
-pairtools split --nproc-in 40 --nproc-out 40 --output-pairs mat_mapped.pairs --output-sam mat_unsorted.bam mat_dedup.pairsam
+pairtools split --nproc-in 55 --nproc-out 55 --output-pairs mat_mapped.pairs --output-sam mat_unsorted.bam mat_dedup.pairsam
 #Mat skip from here to 13
 
 #SUBSAMPLE AT THIS STEP (SEE TOP)
@@ -151,15 +151,20 @@ zcat mat_mapped.pairs.gz | grep -v "#" | wc -l
 
 #Need to process Neurons and Undif to this point first so can see which mapped.pairs.gz file has the most reads and calculate downsampling, for example
 #Concatenated neurons number of reads 314005891(OLD)313193582 mat=313193417
-#Concatenated undif number of reads 623477205(OLD)362809900 mat=
-#percent neurons/undif reads 0.50363652188(OLD)0.8632443105879966
+#Concatenated undif number of reads 623477205(OLD)362809900 mat=362809922
+#percent neurons/undif reads 0.50363652188(OLD)0.8632443105879966 mat=0.8632438034591568
 #After subsampling undif ended up with 314033091(OLD)
 #Command for subsampling (33 is seed for random number in this example)
+#Skip to 14 after this if dont need matrix 
+
 pairtools sample -s 33 --nproc-in 20 --nproc-out 20 -o subsample33.pairs.gz 0.50363652188 mapped.pairs.gz
 #For allele specific paternal
 pairtools sample -s 33 --nproc-in 40 --nproc-out 40 -o subsample33.pairs.gz 0.8632443105879966 mapped.pairs.gz
 #For allele specific maternal
 pairtools sample -s 33 --nproc-in 40 --nproc-out 40 -o subsample33.pairs.gz 0.8632443105879966 mat_mapped.pairs.gz
+Mat Undif
+pairtools sample -s 33 --nproc-in 60 --nproc-out 60 -o subsample33.pairs.gz 0.8632443105879966 mat_mapped.pairs.gz
+#Skip to 14 after this if dont need matrix 
 
 #6 Generating the final bam file with Samtools sort
 samtools sort -@30 -o mapped.PT.bam unsorted.bam; echo "#6 Samtools sort" | mail -s "#6 Samtools sort" ojg333@gmail.com
@@ -252,6 +257,7 @@ cd ..
 bgzip mapped.pairs
 #allele mat
 bgzip -c mat_mapped.pairs > mat_mapped.pairs.gz
+
 #14 Index mapped.pairs (had to type out last time but could be due to previous error setting path without luhmes folder) (Can start oj env which already has pairix installed)
 pairix mapped.pairs.gz
 #allele mat
@@ -294,8 +300,18 @@ FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/neuronscat/config;
 FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/NP4s-SM-5k-05/config-NP4s-5k-05-SM.txt
 #Paternal allele Undif AA 0.1 FDR
 FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/UDP4-AA-5K-10/config-UDP4s-5k-10-AA.txt
-#Mat Neurons Undif AA 0.1 FDR
+#Pat undif sub AA .05
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/UDP4s-AA-5k-05/config-UDP4s-5K-05-AA.txt
+#Paternal allele Neuron AA 0.1 FDR retry
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/Pat_NP4s-AA-5k-10/Pat_config-NP4s-5k-10-AA.txt
+#Mat Neurons AA 0.1 FDR
 FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/Mat_NP4s-AA-5k-10/config-Mat_NP4s-5k-10-AA.txt
+#Mat neurons AA 0.5
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/neurons/Mat_NP4s-AA-5k-05/config-Mat_NP4s-5k-05-AA.txt
+#Mat Undif AA 0.1 FDR
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/maternal/Mat_UDP4s-AA-5k-10/config-MatUDP4s-5k-10-AA.txt
+#Mat  Undif AA 0.5
+FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/ctcfallele/undif/maternal/Mat_UDP4s-AA-5k-05/config-Mat_UDP4s-5k-05-AA.txt
 
 #Undif
 FitHiChIP_HiCPro.sh -C /share/lasallelab/Oran/dovetail/luhmes/merged/configsub33; echo "#20 sub33 FitHiChIP done" | mail -s "#20 Runs FitHiChIP" ojg333@gmail.com
